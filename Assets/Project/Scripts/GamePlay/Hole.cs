@@ -70,4 +70,4 @@ public class Hole : MonoBehaviour
             walker.enabled = false;
         }
     }
-}
+}

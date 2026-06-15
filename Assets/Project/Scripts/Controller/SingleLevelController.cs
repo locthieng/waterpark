@@ -4,16 +4,6 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[Serializable]
-public enum DifficultLevel     
-{
-    VeryEasy,
-    Easy,
-    Medium,
-    Hard,
-    SuperHard
-}
-
 public class SingleLevelController : MonoBehaviour
 {
     private LevelController level;

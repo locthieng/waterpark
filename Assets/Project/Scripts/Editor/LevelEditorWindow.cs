@@ -11,8 +11,8 @@ public class LevelEditorWindow : EditorWindow
     public static void ShowWindow()
     {
         var window = GetWindow<LevelEditorWindow>("Level Editor");
-        window.minSize = new Vector2(200, 120);
-        window.maxSize = new Vector2(400, 120);
+        window.minSize = new Vector2(200, 150);
+        window.maxSize = new Vector2(400, 150);
     }
 
     private void OnEnable()
@@ -103,6 +103,15 @@ public class LevelEditorWindow : EditorWindow
             MarkDirty();
         }
         GUI.backgroundColor = Color.white;
+        EditorGUILayout.EndHorizontal();
+
+        // Row 4: Generate Spline Meshes
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("🛠️ GENERATE SPLINE MESHES", GUILayout.Height(28)))
+        {
+            levelController.EditorGenerateAllSplineMeshes();
+            MarkDirty();
+        }
         EditorGUILayout.EndHorizontal();
     }
 

@@ -1,4 +1,4 @@
-﻿using Codice.CM.Client.Differences;
+using Codice.CM.Client.Differences;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -77,10 +77,17 @@ public class LevelEditor : Editor
 
         EditorGUILayout.Space(10);
 
+        EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("SAVE LEVEL", GUILayout.Width(150), GUILayout.Height(40)))
         {
             levelController.EditorSaveLevel();
         }
+
+        if (GUILayout.Button("GENERATE SPLINE MESHES", GUILayout.Width(180), GUILayout.Height(40)))
+        {
+            levelController.EditorGenerateAllSplineMeshes();
+        }
+        EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.EndVertical();
 

@@ -235,6 +235,16 @@ public class LevelController : Singleton<LevelController>
         }
     }
 
+    public void EditorGenerateAllSplineMeshes()
+    {
+        SplineMeshBuilder[] builders = FindObjectsByType<SplineMeshBuilder>(FindObjectsSortMode.None);
+        foreach (var builder in builders)
+        {
+            builder.GenerateMesh();
+        }
+        Debug.Log($"Generated meshes for {builders.Length} SplineMeshBuilder(s) in active scene.");
+    }
+
     public void EditorSaveLevel()
     {
         Instance = this;
@@ -249,6 +259,9 @@ public class LevelController : Singleton<LevelController>
             {
                 PrefabUtility.UnpackPrefabInstance(prefabRoot, PrefabUnpackMode.OutermostRoot, InteractionMode.AutomatedAction);
             }
+
+            // Auto-generate spline meshes on save
+            EditorGenerateAllSplineMeshes();
 
             // Recheck all of level's objects
             //SaveGridDataToAsset();
