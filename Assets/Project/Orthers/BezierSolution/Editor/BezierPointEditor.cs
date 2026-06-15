@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
@@ -595,162 +595,8 @@ namespace BezierSolution.Extras
 			EditorGUILayout.Space();
 			BezierUtils.DrawSeparator();
 
-			GUILayout.BeginHorizontal();
-
-			if( GUILayout.Button( "<-", BezierUtils.GL_WIDTH_45 ) )
-			{
-				Object[] newSelection = new Object[pointCount];
-				for( int i = 0, index = 0; i < selection.Length; i++ )
-				{
-					BezierSpline spline = selection[i].spline;
-					BezierPoint[] points = selection[i].points;
-
-					if( spline )
-					{
-						for( int j = 0; j < points.Length; j++ )
-						{
-							int prevIndex = points[j].index - 1;
-							if( prevIndex < 0 )
-								prevIndex = spline.Count - 1;
-
-							newSelection[index++] = spline[prevIndex].gameObject;
-						}
-					}
-					else
-					{
-						for( int j = 0; j < points.Length; j++ )
-							newSelection[index++] = points[j].gameObject;
-					}
-				}
-
-				Selection.objects = newSelection;
-				GUIUtility.ExitGUI();
-			}
-
-			string pointIndex = ( pointCount == 1 && selection[0].spline ) ? ( allPoints[0].index + 1 ).ToString() : "-";
-			string splineLength = ( selection.Length == 1 && selection[0].spline ) ? selection[0].spline.Count.ToString() : "-";
-			GUILayout.Box( "Selected Point: " + pointIndex + " / " + splineLength, GUILayout.ExpandWidth( true ) );
-
-			if( GUILayout.Button( "->", BezierUtils.GL_WIDTH_45 ) )
-			{
-				Object[] newSelection = new Object[pointCount];
-				for( int i = 0, index = 0; i < selection.Length; i++ )
-				{
-					BezierSpline spline = selection[i].spline;
-					BezierPoint[] points = selection[i].points;
-
-					if( spline )
-					{
-						for( int j = 0; j < points.Length; j++ )
-						{
-							int nextIndex = points[j].index + 1;
-							if( nextIndex >= spline.Count )
-								nextIndex = 0;
-
-							newSelection[index++] = spline[nextIndex].gameObject;
-						}
-					}
-					else
-					{
-						for( int j = 0; j < points.Length; j++ )
-							newSelection[index++] = points[j].gameObject;
-					}
-				}
-
-				Selection.objects = newSelection;
-				GUIUtility.ExitGUI();
-			}
-
-			GUILayout.EndHorizontal();
-
-			EditorGUILayout.Space();
-
-			if( GUILayout.Button( "Decrement Point's Index" ) )
-			{
-				Undo.IncrementCurrentGroup();
-
-				for( int i = 0; i < selection.Length; i++ )
-				{
-					BezierSpline spline = selection[i].spline;
-					if( spline )
-					{
-						selection[i].SortPoints( true );
-
-						BezierPoint[] points = selection[i].points;
-						int[] newIndices = new int[points.Length];
-						for( int j = 0; j < points.Length; j++ )
-						{
-							int index = points[j].index;
-							int newIndex = index - 1;
-							if( newIndex < 0 )
-								newIndex = spline.Count - 1;
-
-							newIndices[j] = newIndex;
-						}
-
-						for( int j = 0; j < points.Length; j++ )
-							spline.ChangePointIndex( points[j].index, newIndices[j], "Change point index" );
-
-						selection[i].SortPoints( true );
-					}
-				}
-
-				SceneView.RepaintAll();
-			}
-
-			if( GUILayout.Button( "Increment Point's Index" ) )
-			{
-				Undo.IncrementCurrentGroup();
-
-				for( int i = 0; i < selection.Length; i++ )
-				{
-					BezierSpline spline = selection[i].spline;
-					if( spline )
-					{
-						selection[i].SortPoints( false );
-
-						BezierPoint[] points = selection[i].points;
-						int[] newIndices = new int[points.Length];
-						for( int j = 0; j < points.Length; j++ )
-						{
-							int index = points[j].index;
-							int newIndex = index + 1;
-							if( newIndex >= spline.Count )
-								newIndex = 0;
-
-							newIndices[j] = newIndex;
-						}
-
-						for( int j = 0; j < points.Length; j++ )
-							spline.ChangePointIndex( points[j].index, newIndices[j], "Change point index" );
-
-						selection[i].SortPoints( true );
-					}
-				}
-
-				SceneView.RepaintAll();
-			}
-
-			EditorGUILayout.Space();
-
 			bool allSplinesUsingAutoConstructMode = !System.Array.Find( allSplines, ( s ) => s.autoConstructMode == SplineAutoConstructMode.None );
 			bool anySplineUsingAutoCalculateNormals = System.Array.Find( allSplines, ( s ) => s.autoCalculateNormals );
-
-			GUILayout.BeginHorizontal();
-			if( GUILayout.Button( "Insert Point Before" ) )
-				InsertNewPoints( false, false );
-			if( !allSplinesUsingAutoConstructMode && GUILayout.Button( INSERT_POINT_PRESERVE_SHAPE, EditorGUIUtility.wideMode ? BezierUtils.GL_WIDTH_155 : BezierUtils.GL_WIDTH_100 ) )
-				InsertNewPoints( false, true );
-			GUILayout.EndHorizontal();
-
-			GUILayout.BeginHorizontal();
-			if( GUILayout.Button( "Insert Point After" ) )
-				InsertNewPoints( true, false );
-			if( !allSplinesUsingAutoConstructMode && GUILayout.Button( INSERT_POINT_PRESERVE_SHAPE, EditorGUIUtility.wideMode ? BezierUtils.GL_WIDTH_155 : BezierUtils.GL_WIDTH_100 ) )
-				InsertNewPoints( true, true );
-			GUILayout.EndHorizontal();
-
-			EditorGUILayout.Space();
 
 			if( GUILayout.Button( "Duplicate Point" ) )
 				DuplicateSelectedPoints();
@@ -818,23 +664,6 @@ namespace BezierSolution.Extras
 			if( showControlPointDistanceWarning )
 				EditorGUILayout.HelpBox( "Positions of control point(s) shouldn't be very close to (0,0,0), this might result in unpredictable behaviour while moving along the spline with constant speed.", MessageType.Warning );
 
-			EditorGUILayout.Space();
-
-			GUILayout.BeginHorizontal();
-			if( GUILayout.Button( "Swap Control Points" ) )
-			{
-				SwapControlPoints( allPoints );
-				SceneView.RepaintAll();
-			}
-			if( GUILayout.Button( APPLY_TO_ALL_POINTS, BezierUtils.GL_WIDTH_60 ) )
-			{
-				for( int i = 0; i < allSplines.Length; i++ )
-					SwapControlPoints( allSplines[i].endPoints );
-
-				SceneView.RepaintAll();
-			}
-			GUILayout.EndHorizontal();
-
 			GUI.enabled = true;
 
 			EditorGUILayout.Space();
@@ -842,16 +671,9 @@ namespace BezierSolution.Extras
 
 			GUI.enabled = !anySplineUsingAutoCalculateNormals;
 
-			GUILayout.BeginHorizontal();
 			EditorGUI.showMixedValue = HasMultipleDifferentValues( ( p1, p2 ) => p1.normal == p2.normal );
 			EditorGUI.BeginChangeCheck();
-			Rect normalRect = EditorGUILayout.GetControlRect( false, EditorGUIUtility.singleLineHeight ); // When using GUILayout, button isn't vertically centered
-			normalRect.width -= 65f;
-			Vector3 normal = EditorGUI.Vector3Field( normalRect, "Normal", allPoints[0].normal );
-			normalRect.x += normalRect.width + 5f;
-			normalRect.width = 30f;
-			if( GUI.Button( normalRect, NORMALS_SET_TO_CAMERA_FORWARD ) )
-				normal = SceneView.lastActiveSceneView.camera.transform.forward;
+			Vector3 normal = EditorGUILayout.Vector3Field( "Normal", allPoints[0].normal );
 			if( EditorGUI.EndChangeCheck() )
 			{
 				for( int i = 0; i < allPoints.Length; i++ )
@@ -859,20 +681,6 @@ namespace BezierSolution.Extras
 
 				SceneView.RepaintAll();
 			}
-
-			normalRect.x += 30f;
-			if( GUI.Button( normalRect, NORMALS_LOOK_AT_CAMERA ) )
-			{
-				Vector3 cameraPos = SceneView.lastActiveSceneView.camera.transform.position;
-				for( int i = 0; i < allPoints.Length; i++ )
-					allPoints[i].SetNormalAndResetIntermediateNormals( ( cameraPos - allPoints[i].position ).normalized, "Change Normal" );
-
-				SceneView.RepaintAll();
-			}
-			GUILayout.EndHorizontal();
-
-			if( !EditorGUIUtility.wideMode )
-				GUILayout.Space( EditorGUIUtility.singleLineHeight );
 
 			if( anySplineUsingAutoCalculateNormals )
 			{
@@ -926,68 +734,14 @@ namespace BezierSolution.Extras
 				}
 			}
 
-			EditorGUILayout.Space();
-
-			GUILayout.BeginHorizontal();
-			if( GUILayout.Button( "Flip Normals" ) )
-			{
-				FlipNormals( allPoints );
-				SceneView.RepaintAll();
-			}
-			if( GUILayout.Button( APPLY_TO_ALL_POINTS, BezierUtils.GL_WIDTH_60 ) )
-			{
-				for( int i = 0; i < allSplines.Length; i++ )
-					FlipNormals( allSplines[i].endPoints );
-
-				SceneView.RepaintAll();
-			}
-			GUILayout.EndHorizontal();
-
-			GUILayout.BeginHorizontal();
-			if( GUILayout.Button( NORMALIZE_NORMALS_TIP ) )
-			{
-				NormalizeNormals( allPoints );
-				SceneView.RepaintAll();
-			}
-			if( GUILayout.Button( APPLY_TO_ALL_POINTS, BezierUtils.GL_WIDTH_60 ) )
-			{
-				for( int i = 0; i < allSplines.Length; i++ )
-					NormalizeNormals( allSplines[i].endPoints );
-
-				SceneView.RepaintAll();
-			}
-			GUILayout.EndHorizontal();
-
-			GUILayout.BeginHorizontal();
-			if( GUILayout.Button( "Reset Normals" ) )
-			{
-				ResetNormals( allPoints );
-				SceneView.RepaintAll();
-			}
-			if( GUILayout.Button( APPLY_TO_ALL_POINTS, BezierUtils.GL_WIDTH_60 ) )
-			{
-				for( int i = 0; i < allSplines.Length; i++ )
-					ResetNormals( allSplines[i].endPoints );
-
-				SceneView.RepaintAll();
-			}
-			GUILayout.EndHorizontal();
-
 			GUI.enabled = true;
 
 			EditorGUILayout.Space();
 			BezierUtils.DrawSeparator();
 
-			GUILayout.BeginHorizontal();
 			EditorGUI.showMixedValue = HasMultipleDifferentValues( ( p1, p2 ) => p1.extraData == p2.extraData );
 			EditorGUI.BeginChangeCheck();
-			Rect extraDataRect = EditorGUILayout.GetControlRect( false, EditorGUIUtility.singleLineHeight ); // When using GUILayout, button isn't vertically centered
-			extraDataRect.width -= 65f;
-			BezierPoint.ExtraData extraData = EditorGUI.Vector4Field( extraDataRect, EXTRA_DATA_TIP, allPoints[0].extraData );
-			extraDataRect.x += extraDataRect.width + 5f;
-			extraDataRect.width = 30f;
-			if( GUI.Button( extraDataRect, EXTRA_DATA_SET_AS_CAMERA_FORWARD ) )
-				extraData = SceneView.lastActiveSceneView.camera.transform.rotation;
+			BezierPoint.ExtraData extraData = EditorGUILayout.Vector4Field( EXTRA_DATA_TIP, allPoints[0].extraData );
 			if( EditorGUI.EndChangeCheck() )
 			{
 				for( int i = 0; i < allPoints.Length; i++ )
@@ -1001,40 +755,10 @@ namespace BezierSolution.Extras
 
 			EditorGUI.showMixedValue = false;
 
-			extraDataRect.x += 30f;
-			EditorGUI.BeginChangeCheck();
-			bool visualizeExtraDataAsFrustum = GUI.Toggle( extraDataRect, BezierSettings.VisualizeExtraDataAsFrustum, EXTRA_DATA_VIEW_AS_FRUSTUM, GUI.skin.button );
-			if( EditorGUI.EndChangeCheck() )
-			{
-				BezierSettings.VisualizeExtraDataAsFrustum = visualizeExtraDataAsFrustum;
-				SceneView.RepaintAll();
-			}
-			GUILayout.EndHorizontal();
-
-			if( !EditorGUIUtility.wideMode )
-				GUILayout.Space( EditorGUIUtility.singleLineHeight );
-
 			BezierUtils.DrawSeparator();
 			EditorGUILayout.Space();
 
 			Color c = GUI.backgroundColor;
-			GUI.backgroundColor = RESET_POINT_BUTTON_COLOR;
-
-			if( GUILayout.Button( "Reset Point" ) )
-			{
-				for( int i = 0; i < allPoints.Length; i++ )
-				{
-					Undo.RecordObject( allPoints[i].transform, "Reset Point" );
-					Undo.RecordObject( allPoints[i], "Reset Point" );
-
-					allPoints[i].Reset();
-				}
-
-				SceneView.RepaintAll();
-			}
-
-			EditorGUILayout.Space();
-
 			GUI.backgroundColor = REMOVE_POINT_BUTTON_COLOR;
 
 			if( GUILayout.Button( "Remove Point" ) )

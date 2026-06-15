@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEditor;
 using System.Reflection;
@@ -447,55 +447,6 @@ namespace BezierSolution.Extras
 
 				EditorGUI.indentLevel--;
 			}
-
-			EditorGUILayout.Space();
-
-			GUI.backgroundColor = AUTO_CONSTRUCT_SPLINE_BUTTON_COLOR;
-			ShowAutoConstructButton( splines, CONSTRUCT_LINEAR_PATH_TEXT, SplineAutoConstructMode.Linear );
-			ShowAutoConstructButton( splines, AUTO_CONSTRUCT_SPLINE_TEXT, SplineAutoConstructMode.Smooth1 );
-			ShowAutoConstructButton( splines, AUTO_CONSTRUCT_SPLINE_2_TEXT, SplineAutoConstructMode.Smooth2 );
-
-			GUILayout.BeginHorizontal();
-			if( GUILayout.Button( AUTO_CALCULATE_NORMALS_TEXT ) )
-			{
-				for( int i = 0; i < splines.Length; i++ )
-				{
-					BezierSpline spline = splines[i];
-					Undo.RecordObject( spline, "Auto Calculate Normals" );
-
-					try
-					{
-						spline.autoCalculateNormals = true;
-						SetSplineDirtyWithUndo( spline, "Auto Calculate Normals", InternalDirtyFlags.NormalOffsetChange );
-					}
-					finally
-					{
-						spline.autoCalculateNormals = false;
-					}
-				}
-
-				SceneView.RepaintAll();
-			}
-
-			EditorGUI.BeginChangeCheck();
-			bool autoCalculateNormalsEnabled = GUILayout.Toggle( Array.Find( splines, ( s ) => s.autoCalculateNormals ), AUTO_CONSTRUCT_ALWAYS_TEXT, GUI.skin.button, EditorGUIUtility.wideMode ? GL_WIDTH_100 : GL_WIDTH_60 );
-			if( EditorGUI.EndChangeCheck() )
-			{
-				for( int i = 0; i < splines.Length; i++ )
-				{
-					BezierSpline spline = splines[i];
-					Undo.RecordObject( spline, "Change Auto Calculate Normals" );
-					spline.autoCalculateNormals = autoCalculateNormalsEnabled;
-
-					if( autoCalculateNormalsEnabled )
-						SetSplineDirtyWithUndo( spline, "Change Auto Calculate Normals", InternalDirtyFlags.NormalOffsetChange );
-				}
-
-				SceneView.RepaintAll();
-			}
-			GUILayout.EndHorizontal();
-
-			GUI.backgroundColor = c;
 
 			EditorGUILayout.Space();
 

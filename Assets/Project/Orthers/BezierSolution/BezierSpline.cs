@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -59,20 +59,11 @@ namespace BezierSolution
 
 		[SerializeField, HideInInspector]
 		[UnityEngine.Serialization.FormerlySerializedAs( "Internal_AutoConstructMode" )]
-		private SplineAutoConstructMode m_autoConstructMode = SplineAutoConstructMode.None;
+		private SplineAutoConstructMode m_autoConstructMode = SplineAutoConstructMode.Smooth1;
 		public SplineAutoConstructMode autoConstructMode
 		{
-			get { return m_autoConstructMode; }
-			set
-			{
-				if( m_autoConstructMode != value )
-				{
-					m_autoConstructMode = value;
-
-					if( value != SplineAutoConstructMode.None )
-						dirtyFlags |= InternalDirtyFlags.EndPointTransformChange | InternalDirtyFlags.ControlPointPositionChange;
-				}
-			}
+			get { return SplineAutoConstructMode.Smooth1; }
+			set { m_autoConstructMode = SplineAutoConstructMode.Smooth1; }
 		}
 
 		private Vector3[] autoConstructedSplineRhs;
@@ -81,18 +72,11 @@ namespace BezierSolution
 
 		[SerializeField, HideInInspector]
 		[UnityEngine.Serialization.FormerlySerializedAs( "Internal_AutoCalculateNormals" )]
-		private bool m_autoCalculateNormals = false;
+		private bool m_autoCalculateNormals = true;
 		public bool autoCalculateNormals
 		{
-			get { return m_autoCalculateNormals; }
-			set
-			{
-				if( m_autoCalculateNormals != value )
-				{
-					m_autoCalculateNormals = value;
-					dirtyFlags |= InternalDirtyFlags.NormalOffsetChange;
-				}
-			}
+			get { return true; }
+			set { m_autoCalculateNormals = true; }
 		}
 
 		[SerializeField, HideInInspector]
@@ -235,6 +219,17 @@ namespace BezierSolution
 
 		internal void CheckDirty()
 		{
+			if( m_autoConstructMode != SplineAutoConstructMode.Smooth1 )
+			{
+				m_autoConstructMode = SplineAutoConstructMode.Smooth1;
+				dirtyFlags |= InternalDirtyFlags.EndPointTransformChange | InternalDirtyFlags.ControlPointPositionChange;
+			}
+			if( !m_autoCalculateNormals )
+			{
+				m_autoCalculateNormals = true;
+				dirtyFlags |= InternalDirtyFlags.NormalOffsetChange;
+			}
+
 			for( int i = 0; i < endPoints.Count; i++ )
 				endPoints[i].RefreshIfChanged();
 
