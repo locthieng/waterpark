@@ -31,7 +31,7 @@ public class SplineMeshBuilder : MonoBehaviour
 
     void Start()
     {
-        GenerateMesh();
+        //GenerateMesh();
     }
 
     [ContextMenu("Generate Mesh Now")]

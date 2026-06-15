@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -52,8 +52,10 @@ public class LevelEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
         levelController = (LevelController)target;
+        LoadLevelDataEditor();
+
+        DrawDefaultInspector();
 
         GUIStyle headerStyle = new GUIStyle();
         headerStyle.richText = true;

@@ -1,15 +1,10 @@
 using UnityEngine;
 using BezierSolution;
 
-public enum HoleState
-{
-    None,
-    OnSpot,
-    OnPath
-}
-
 public class Hole : MonoBehaviour
 {
+    public HoldState _holdState;
+    private Spot _CurSpot;
     [Header("Bezier Movement Settings")]
     [Tooltip("The walker component that controls the object's movement along the spline")]
     public BezierWalker walker;
@@ -51,11 +46,16 @@ public class Hole : MonoBehaviour
 
     private void OnMouseUp()
     {
-        // When mouse is released, start the movement from the beginning
         if (walker != null)
         {
-            walker.NormalizedT = 0f; // Start from the beginning (point 0)
-            walker.enabled = true;   // Enable the walker component to start movement
+            walker.NormalizedT = 0f; 
+            walker.enabled = true;
+            _holdState = HoldState.OnBezier;
+            if (_CurSpot != null)
+            {
+                _CurSpot._SpotState = SpotState.EmptySpot;
+                _CurSpot = null;
+            }    
         }
         else
         {
@@ -63,11 +63,54 @@ public class Hole : MonoBehaviour
         }
     }
 
+    private Vector3 _PosEndBezier => InGameController.Instance.SpotsController._spotPoint.position;
     private void OnMovementCompleted()
     {
         if (walker != null)
         {
             walker.enabled = false;
+            transform.position = _PosEndBezier;
+            FlyToEmptySpot();
         }
+    }
+
+    public void FlyToEmptySpot()
+    {
+        Spot emptySpot = GetEmptySpot();
+        if (emptySpot != null)
+        {
+            emptySpot.SetHole(this);
+            LeanTween.move(gameObject, emptySpot.transform.position, 0.5f)
+                .setEase(LeanTweenType.easeOutQuad)
+                .setOnComplete(() =>
+                {
+                    _holdState = HoldState.OnSpot;
+                    _CurSpot = emptySpot;
+                    emptySpot._SpotState = SpotState.HoleOnSpot;
+                });
+        }
+        else
+        {
+            Debug.LogWarning("No empty spot found for Hole!", this);
+        }
+    }
+
+    private Spot GetEmptySpot()
+    {
+        if (InGameController.Instance != null && InGameController.Instance.SpotsController != null)
+        {
+            var spots = InGameController.Instance.SpotsController.AllSpots;
+            if (spots != null)
+            {
+                foreach (var spot in spots)
+                {
+                    if (spot._SpotState == SpotState.EmptySpot)
+                    {
+                        return spot;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

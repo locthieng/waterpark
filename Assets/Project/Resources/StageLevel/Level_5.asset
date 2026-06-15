@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca73883f23b255346b60c56133edaccf, type: 3}
   m_Name: Level_5
   m_EditorClassIdentifier: 
-  levelIndex: 1
-  difficulty: 1
-  isTutorial: 0
-  splines: []
-  placementObjects: []
+  levelIndex: 5
+  _gameDifficulty: 2
+  _meshBezierSpline: {fileID: 0}

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using BezierSolution;
@@ -80,7 +80,7 @@ public class LevelController : Singleton<LevelController>
     public void EditorAddLevel()
     {
         Instance = this;
-        string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/Project/Resources/" + levelAssetPath });
+        string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { ("Assets/Project/Resources/" + levelAssetPath).TrimEnd('/') });
         CurrentLevel = guids.Length + 1;
 
         LevelData newLevelData = ScriptableObject.CreateInstance<LevelData>();
@@ -95,8 +95,7 @@ public class LevelController : Singleton<LevelController>
         string assetPath = assetFolder + levelPrefix + CurrentLevel + ".asset";
 
         AssetDatabase.CreateAsset(newLevelData, assetPath);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
+        EditorSaveLevel();
 
         Debug.Log("Tạo Level mới thành công tại: " + assetPath);
     }
@@ -148,7 +147,7 @@ public class LevelController : Singleton<LevelController>
             return;
         }
 
-        string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/Project/Resources/" + levelAssetPath });
+        string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { ("Assets/Project/Resources/" + levelAssetPath).TrimEnd('/') });
         CurrentLevel = guids.Length + 1;
         string newPath = "Assets/Project/Resources/" + levelAssetPath + levelPrefix + CurrentLevel + ".asset";
 
@@ -157,7 +156,7 @@ public class LevelController : Singleton<LevelController>
         LevelData newLevelData = AssetDatabase.LoadAssetAtPath<LevelData>(newPath);
         newLevelData.levelIndex = CurrentLevel;
         EditorUtility.SetDirty(newLevelData);
-        AssetDatabase.SaveAssets();
+        EditorSaveLevel();
     }
 
     public void EditorSaveLevel()
@@ -170,11 +169,33 @@ public class LevelController : Singleton<LevelController>
         {
             System.IO.Directory.CreateDirectory(assetFolder);
         }
-        //string assetPath = assetFolder + Level.name + ".asset";
+
+        // Tự động sửa levelIndex của tất cả file LevelData dựa theo tên file
+        string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { assetFolder.TrimEnd('/') });
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            LevelData data = AssetDatabase.LoadAssetAtPath<LevelData>(path);
+            if (data != null)
+            {
+                string filename = System.IO.Path.GetFileNameWithoutExtension(path);
+                if (filename.StartsWith(levelPrefix))
+                {
+                    string numStr = filename.Substring(levelPrefix.Length);
+                    if (int.TryParse(numStr, out int parsedLevel))
+                    {
+                        if (data.levelIndex != parsedLevel)
+                        {
+                            data.levelIndex = parsedLevel;
+                            EditorUtility.SetDirty(data);
+                        }
+                    }
+                }
+            }
+        }
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        //Debug.Log("Level saved successfully as ScriptableObject: " + assetPath);
     }
 }
 #endif
