@@ -19,7 +19,7 @@ public class CameraController : Singleton<CameraController>
 
     private void Start()
     {
-        float fixedRatio = GlobalController.FixedStageResolution.x / GlobalController.FixedStageResolution.y;
+        /*float fixedRatio = GlobalController.FixedStageResolution.x / GlobalController.FixedStageResolution.y;
         if (Screen.currentResolution.width / Screen.currentResolution.height > fixedRatio)
         {
             GameCamera.fieldOfView = minPerspectiveFOV;
@@ -35,7 +35,7 @@ public class CameraController : Singleton<CameraController>
         }
         UICamera.orthographicSize = GameCamera.orthographicSize;
         HighUICamera.orthographicSize = GameCamera.orthographicSize;
-        GameCamera.orthographicSize = minOrthoSize;
+        GameCamera.orthographicSize = minOrthoSize;*/
     }
 
     public void Shake()
