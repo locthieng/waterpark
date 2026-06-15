@@ -21,9 +21,6 @@ public class LevelController : Singleton<LevelController>
     [HideInInspector] public int CurrentLevel = 0;
     [HideInInspector] public int levelIndex;
 
-    [Header("Level Prefab References")]
-    public List<GameObject> LevelPrefabs = new List<GameObject>();
-
     // public List<LevelAsset> ListLevelSpecials = new List<LevelAsset>();
 
     private LevelData loadedLevelData;
@@ -83,14 +80,25 @@ public class LevelController : Singleton<LevelController>
     public void EditorAddLevel()
     {
         Instance = this;
-        // Sửa thành levelAssetPath
         string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/Project/Resources/" + levelAssetPath });
         CurrentLevel = guids.Length + 1;
 
-        GameObject levelGo = new GameObject(levelPrefix + CurrentLevel);
-        levelGo.transform.SetParent(transform, false);
+        LevelData newLevelData = ScriptableObject.CreateInstance<LevelData>();
+        newLevelData.levelIndex = CurrentLevel;
 
-        EditorSaveLevel();
+        string assetFolder = "Assets/Project/Resources/" + levelAssetPath;
+        if (!System.IO.Directory.Exists(assetFolder))
+        {
+            System.IO.Directory.CreateDirectory(assetFolder);
+        }
+
+        string assetPath = assetFolder + levelPrefix + CurrentLevel + ".asset";
+
+        AssetDatabase.CreateAsset(newLevelData, assetPath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log("Tạo Level mới thành công tại: " + assetPath);
     }
 
     public void EditorLoadLevel(int level)
@@ -130,54 +138,43 @@ public class LevelController : Singleton<LevelController>
     public void EditorCloneLevel(int level)
     {
         Instance = this;
-            EditorSaveLevel();
-            // Sửa toàn bộ thành levelAssetPath để nhân bản đúng mục tiêu
-            string sourcePath = "Assets/Project/Resources/" + levelAssetPath + levelPrefix + level + ".asset";
-            LevelData sourceData = AssetDatabase.LoadAssetAtPath<LevelData>(sourcePath);
-            if (sourceData == null)
-            {
-                Debug.LogError("No source level found to clone at: " + sourcePath);
-                return;
-            }
-
-            string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/Project/Resources/" + levelAssetPath });
-            CurrentLevel = guids.Length + 1;
-            string newPath = "Assets/Project/Resources/" + levelAssetPath + levelPrefix + CurrentLevel + ".asset";
-
-            AssetDatabase.CopyAsset(sourcePath, newPath);
-            AssetDatabase.Refresh();
-            LevelData newLevelData = AssetDatabase.LoadAssetAtPath<LevelData>(newPath);
-            newLevelData.levelIndex = CurrentLevel;
-            EditorUtility.SetDirty(newLevelData);
-            AssetDatabase.SaveAssets();
-    }
-
-    public void EditorGenerateAllSplineMeshes()
-    {
-        SplineMeshBuilder[] builders = FindObjectsByType<SplineMeshBuilder>(FindObjectsSortMode.None);
-        foreach (var builder in builders)
+        EditorSaveLevel();
+        // Sửa toàn bộ thành levelAssetPath để nhân bản đúng mục tiêu
+        string sourcePath = "Assets/Project/Resources/" + levelAssetPath + levelPrefix + level + ".asset";
+        LevelData sourceData = AssetDatabase.LoadAssetAtPath<LevelData>(sourcePath);
+        if (sourceData == null)
         {
-            builder.GenerateMesh();
+            Debug.LogError("No source level found to clone at: " + sourcePath);
+            return;
         }
-        Debug.Log($"Generated meshes for {builders.Length} SplineMeshBuilder(s) in active scene.");
+
+        string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/Project/Resources/" + levelAssetPath });
+        CurrentLevel = guids.Length + 1;
+        string newPath = "Assets/Project/Resources/" + levelAssetPath + levelPrefix + CurrentLevel + ".asset";
+
+        AssetDatabase.CopyAsset(sourcePath, newPath);
+        AssetDatabase.Refresh();
+        LevelData newLevelData = AssetDatabase.LoadAssetAtPath<LevelData>(newPath);
+        newLevelData.levelIndex = CurrentLevel;
+        EditorUtility.SetDirty(newLevelData);
+        AssetDatabase.SaveAssets();
     }
 
     public void EditorSaveLevel()
     {
         Instance = this;
-            EditorGenerateAllSplineMeshes();
 
-            // Sửa thành levelAssetPath để tạo đúng thư mục lưu trữ StageLevel
-            string assetFolder = "Assets/Project/Resources/" + levelAssetPath;
-            if (!System.IO.Directory.Exists(assetFolder))
-            {
-                System.IO.Directory.CreateDirectory(assetFolder);
-            }
-            //string assetPath = assetFolder + Level.name + ".asset";
+        // Sửa thành levelAssetPath để tạo đúng thư mục lưu trữ StageLevel
+        string assetFolder = "Assets/Project/Resources/" + levelAssetPath;
+        if (!System.IO.Directory.Exists(assetFolder))
+        {
+            System.IO.Directory.CreateDirectory(assetFolder);
+        }
+        //string assetPath = assetFolder + Level.name + ".asset";
 
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-            //Debug.Log("Level saved successfully as ScriptableObject: " + assetPath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        //Debug.Log("Level saved successfully as ScriptableObject: " + assetPath);
     }
-    }
+}
 #endif

@@ -103,13 +103,14 @@ public class LevelEditor : Editor
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("SAVE LEVEL", GUILayout.Width(150), GUILayout.Height(40)))
         {
+            if (currentLevelData != null)
+            {
+                currentLevelData.levelIndex = levelController.CurrentLevel;
+                EditorUtility.SetDirty(currentLevelData);
+            }
+
             levelController.EditorSaveLevel();
             LoadLevelDataEditor();
-        }
-
-        if (GUILayout.Button("GENERATE SPLINE MESHES", GUILayout.Width(180), GUILayout.Height(40)))
-        {
-            levelController.EditorGenerateAllSplineMeshes();
         }
         EditorGUILayout.EndHorizontal();
 
@@ -129,8 +130,10 @@ public class LevelEditor : Editor
 
             if (EditorGUI.EndChangeCheck())
             {
+                currentLevelData.levelIndex = levelController.CurrentLevel;
+
                 EditorUtility.SetDirty(currentLevelData);
-                AssetDatabase.SaveAssets(); 
+                AssetDatabase.SaveAssets();
             }
         }
         else

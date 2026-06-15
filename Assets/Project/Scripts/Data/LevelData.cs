@@ -4,7 +4,7 @@ using UnityEngine;
 using BezierSolution;
 
 [Serializable]
-public enum DifficultLevel
+public enum GameDifficult
 {
     VeryEasy,
     Easy,
@@ -18,6 +18,6 @@ public class LevelData : ScriptableObject
 {
     [Header("Level Configurations")]
     public int levelIndex;
-    public DifficultLevel difficulty = DifficultLevel.Easy;
+    public GameDifficult _gameDifficulty = GameDifficult.Easy;
     public Mesh _meshBezierSpline;
 }

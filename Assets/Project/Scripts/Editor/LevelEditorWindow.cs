@@ -119,15 +119,6 @@ public class LevelEditorWindow : EditorWindow
         }
         GUI.backgroundColor = Color.white;
         EditorGUILayout.EndHorizontal();
-
-        // Row 4: Generate Spline Meshes
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("🛠️ GENERATE SPLINE MESHES", GUILayout.Height(28)))
-        {
-            levelController.EditorGenerateAllSplineMeshes();
-            MarkDirty();
-        }
-        EditorGUILayout.EndHorizontal();
     }
 
     private void MarkDirty()
