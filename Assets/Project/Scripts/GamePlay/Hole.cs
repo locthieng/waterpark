@@ -1,18 +1,73 @@
-﻿using UnityEngine;
+using UnityEngine;
+using BezierSolution;
+
+public enum HoleState
+{
+    None,
+    OnSpot,
+    OnPath
+}
 
 public class Hole : MonoBehaviour
 {
-    // Hàm này được gọi ngay khi sếp nhấn chuột trái xuống bề mặt của Box Collider
-    private void OnMouseDown()
+    [Header("Bezier Movement Settings")]
+    [Tooltip("The walker component that controls the object's movement along the spline")]
+    public BezierWalker walker;
+
+    [Tooltip("Should the walker be disabled on Start so it doesn't move immediately?")]
+    public bool disableWalkerOnStart = true;
+
+    private void Start()
     {
-        Debug.Log("Đã nhấn chuột xuống (OnMouseDown) tại Hole!");
-        // Thêm logic xử lý khi nhấn chuột của sếp vào đây
+        // If no walker is assigned, try to get it from this GameObject
+        if (walker == null)
+        {
+            walker = GetComponent<BezierWalker>();
+        }
+
+        if (walker != null)
+        {
+            // Disable the walker on startup if requested
+            if (disableWalkerOnStart)
+            {
+                walker.enabled = false;
+            }
+
+            // Hook into the path completed event to automatically disable the walker when it reaches the end
+            if (walker is BezierWalkerWithSpeed walkerSpeed)
+            {
+                walkerSpeed.onPathCompleted.AddListener(OnMovementCompleted);
+            }
+            else if (walker is BezierWalkerWithTime walkerTime)
+            {
+                walkerTime.onPathCompleted.AddListener(OnMovementCompleted);
+            }
+        }
     }
 
-    // Hàm này được gọi khi sếp nhả chuột trái ra sau khi đã nhấn vào object
+    private void OnMouseDown()
+    {
+    }
+
     private void OnMouseUp()
     {
-        Debug.Log("Đã nhả chuột (OnMouseUp) tại Hole!");
-        // Thêm logic xử lý khi nhả chuột của sếp vào đây
+        // When mouse is released, start the movement from the beginning
+        if (walker != null)
+        {
+            walker.NormalizedT = 0f; // Start from the beginning (point 0)
+            walker.enabled = true;   // Enable the walker component to start movement
+        }
+        else
+        {
+            Debug.LogWarning("No BezierWalker component assigned to Hole script!", this);
+        }
     }
-}
+
+    private void OnMovementCompleted()
+    {
+        if (walker != null)
+        {
+            walker.enabled = false;
+        }
+    }
+}
