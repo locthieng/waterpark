@@ -18,7 +18,7 @@ public class LevelEditorWindow : EditorWindow
     private void OnEnable()
     {
         EditorApplication.hierarchyChanged += OnHierarchyChanged;
-        levelController = FindObjectOfType<LevelController>();
+        levelController = Object.FindFirstObjectByType<LevelController>();
         if (levelController != null)
             inputLevel = levelController.CurrentLevel < 1 ? 1 : levelController.CurrentLevel;
     }
@@ -31,18 +31,33 @@ public class LevelEditorWindow : EditorWindow
     private void OnHierarchyChanged()
     {
         if (levelController == null)
-            levelController = FindObjectOfType<LevelController>();
+            levelController = Object.FindFirstObjectByType<LevelController>();
         Repaint();
     }
 
     private void OnGUI()
     {
         if (levelController == null)
-            levelController = FindObjectOfType<LevelController>();
+            levelController = Object.FindFirstObjectByType<LevelController>();
 
         if (levelController == null)
         {
             EditorGUILayout.HelpBox("LevelController not found in Scene.", MessageType.Warning);
+            if (GUILayout.Button("Open Game Scene", GUILayout.Height(30)))
+            {
+                string scenePath = "Assets/Project/Scenes/Game.unity";
+                if (System.IO.File.Exists(scenePath))
+                {
+                    if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                    {
+                        EditorSceneManager.OpenScene(scenePath);
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Game scene not found at " + scenePath);
+                }
+            }
             return;
         }
 

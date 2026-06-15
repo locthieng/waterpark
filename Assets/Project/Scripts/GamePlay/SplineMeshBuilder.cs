@@ -50,7 +50,11 @@ public class SplineMeshBuilder : MonoBehaviour
         {
             generatedMesh = new Mesh();
             generatedMesh.name = "Spline Mesh";
+#if UNITY_EDITOR
+            GetComponent<MeshFilter>().sharedMesh = generatedMesh;
+#else
             GetComponent<MeshFilter>().mesh = generatedMesh;
+#endif
         }
 
         // Gán Material tự động vào MeshRenderer

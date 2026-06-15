@@ -46,7 +46,6 @@ public class GlobalController : MonoBehaviour
     public static Action OnLoadSceneComplete;
     public static int ReplayCount { get; internal set; }
     public static StageScreen CurrentStage { get; internal set; }
-    public static LevelType CurrentLevelType;
 
     public static bool IsBgmOn { get; internal set; }
     public bool ForTesting = false;

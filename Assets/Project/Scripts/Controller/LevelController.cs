@@ -1,12 +1,12 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using BezierSolution;
 
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.AI;
 using UnityEditor.SceneManagement;
-
 #endif
 using UnityEngine;
 using UnityEngine.AI;
@@ -14,17 +14,19 @@ using UnityEngine.SceneManagement;
 
 public class LevelController : Singleton<LevelController>
 {
-    private const string levelPrefabPath = "StageLevel/";
-    private const string levelAssetFolder = "Assets/Project/Resources/StageLevel/";
-    private const string levelPrefabPathSpecial = "SpecialLevel/";
-    private const string levelPrefabBasePath = "Base/";
-
+    // Đã đồng nhất sử dụng levelAssetPath cho toàn bộ class
+    private const string levelAssetPath = "StageLevel/";
     private const string levelPrefix = "Level_";
+
     [HideInInspector] public int CurrentLevel = 0;
-    [HideInInspector] public SingleLevelController LoadedLevel;
-    public SingleLevelController Level;
     [HideInInspector] public int levelIndex;
-    [HideInInspector] public List<LevelAsset> ListLevelSpecials = new List<LevelAsset>();
+
+    [Header("Level Prefab References")]
+    public List<GameObject> LevelPrefabs = new List<GameObject>();
+
+    // public List<LevelAsset> ListLevelSpecials = new List<LevelAsset>();
+
+    private LevelData loadedLevelData;
 
     protected override void Awake()
     {
@@ -46,16 +48,11 @@ public class LevelController : Singleton<LevelController>
         }
         return level;
     }
+
     private int SortLevelsAccending(int x, int y)
     {
-        if (x < y)
-        {
-            return -1;
-        }
-        else
-        {
-            return 1;
-        }
+        if (x < y) return -1;
+        return 1;
     }
 
     public int GetCurrentLevel()
@@ -68,120 +65,44 @@ public class LevelController : Singleton<LevelController>
         return levelIndex;
     }
 
-    /// <summary>
-    /// Load a level map & return the map index
-    /// </summary>
-    /// <param name="level"></param>
-    /// <param name="levelLimit"></param>
-    /// <param name="forcedChange"></param>
-    /// <returns></returns>
     public int LoadLevel(int level, int levelLimit, bool forcedChange = false)
     {
-        Level = transform.GetComponentInChildren<SingleLevelController>();
-        if (Level != null)
-        {
-            if (forcedChange)
-            {
-                Destroy(Level.gameObject);
-            }
-            else
-            {
-                //CurrentLevel = int.Parse(Level.name.Split('_')[1]);
-                //LoadedLevel = Level;
-                //return CurrentLevel; // For GD Test
-            }
-        }
         levelIndex = level % levelLimit;
         if (levelIndex == 0)
         {
             levelIndex = levelLimit;
         }
-        switch (GlobalController.CurrentLevelType)
-        {
-            case LevelType.Main:
-                LoadedLevel = Resources.Load<SingleLevelController>(levelPrefabPath + levelPrefix + levelIndex);
-                break;
-            case LevelType.Special:
-                LoadedLevel = ListLevelSpecials[GlobalController.CurrentLevelSpecialIndex].Prefab;
-                break;
-            default:
-                break;
-        }
+
+        loadedLevelData = Resources.Load<LevelData>(levelAssetPath + levelPrefix + levelIndex);
 
         CurrentLevel = levelIndex;
         return level;
-    }
-
-    public void SetUpLevel()
-    {
-        if (LoadedLevel != null && Level == null)
-        {
-            Level = Instantiate(LoadedLevel, transform);
-        }
     }
 
 #if UNITY_EDITOR
     public void EditorAddLevel()
     {
         Instance = this;
-        // Count existing levels to determine new index
-        SingleLevelController[] allLevels = Resources.LoadAll<SingleLevelController>(levelPrefabPath);
-        CurrentLevel = allLevels.Length + 1;
+        // Sửa thành levelAssetPath
+        string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/Project/Resources/" + levelAssetPath });
+        CurrentLevel = guids.Length + 1;
 
-        // Clone from current level or Level_1 as template
-        Object sourcePrefab = null;
-        if (Level != null)
-        {
-            Object prefabParent = PrefabUtility.GetCorrespondingObjectFromSource(Level.gameObject);
-            if (prefabParent != null)
-            {
-                PrefabUtility.SaveAsPrefabAsset(Level.gameObject, AssetDatabase.GetAssetPath(prefabParent));
-                sourcePrefab = prefabParent;
-            }
-            DestroyImmediate(Level.gameObject);
-        }
+        GameObject levelGo = new GameObject(levelPrefix + CurrentLevel);
+        levelGo.transform.SetParent(transform, false);
 
-        if (sourcePrefab == null)
-            sourcePrefab = Resources.Load(levelPrefabPath + levelPrefix + "1");
-
-        if (sourcePrefab == null)
-        {
-            Debug.LogError("No source level prefab found to clone.");
-            return;
-        }
-
-        // Copy and load new level
-        string sourcePath = AssetDatabase.GetAssetPath(sourcePrefab);
-        string newPath = levelAssetFolder + levelPrefix + CurrentLevel + ".prefab";
-        AssetDatabase.CopyAsset(sourcePath, newPath);
-        AssetDatabase.Refresh();
-
-        GameObject g = PrefabUtility.InstantiatePrefab(Resources.Load(levelPrefabPath + levelPrefix + CurrentLevel), transform) as GameObject;
-        Level = g.GetComponent<SingleLevelController>();
-        Level.name = levelPrefix + CurrentLevel;
+        EditorSaveLevel();
     }
 
     public void EditorLoadLevel(int level)
     {
         Instance = this;
-        Level = transform.GetComponentInChildren<SingleLevelController>();
-        if (Level != null)
-        {
-            Object prefabParent = PrefabUtility.GetCorrespondingObjectFromSource(Level.gameObject);
-            if (prefabParent != null)
-            {
-                PrefabUtility.SaveAsPrefabAsset(
-                    Level.gameObject,
-                    AssetDatabase.GetAssetPath(prefabParent));
-            }
-            DestroyImmediate(Level.gameObject);
-            AssetDatabase.Refresh();
-        }
 
-        Object loadedPrefab = Resources.Load(levelPrefabPath + levelPrefix + level);
-        if (loadedPrefab == null)
+        string assetPath = "Assets/Project/Resources/" + levelAssetPath + levelPrefix + level + ".asset";
+        LevelData loadedData = AssetDatabase.LoadAssetAtPath<LevelData>(assetPath);
+        if (loadedData == null)
         {
-            Debug.LogError("No prefab found at Resources/" + levelPrefabPath + levelPrefix + level);
+            Debug.LogWarning("No LevelData asset found at " + assetPath);
+
             if (level != 1)
             {
                 CurrentLevel = 1;
@@ -190,13 +111,8 @@ public class LevelController : Singleton<LevelController>
             return;
         }
 
-        GameObject g = PrefabUtility.InstantiatePrefab(loadedPrefab, transform) as GameObject;
-        Level = g.GetComponent<SingleLevelController>();
-        Level.name = levelPrefix + level;
         CurrentLevel = level;
     }
-
-
 
     public void EditorLoadPrevLevel()
     {
@@ -204,7 +120,6 @@ public class LevelController : Singleton<LevelController>
         if (CurrentLevel < 1) CurrentLevel = 1;
         EditorLoadLevel(CurrentLevel);
     }
-
 
     public void EditorLoadNextLevel()
     {
@@ -215,24 +130,26 @@ public class LevelController : Singleton<LevelController>
     public void EditorCloneLevel(int level)
     {
         Instance = this;
-        Level = transform.GetComponentInChildren<SingleLevelController>();
-        if (Level != null)
-        {
-            Object prefabParent = PrefabUtility.GetCorrespondingObjectFromSource(Level.gameObject);
-            string basePath = AssetDatabase.GetAssetPath(prefabParent);
-            basePath = basePath.Substring(0, basePath.Length - (levelPrefix + level).Length - ".prefab".Length);
-            PrefabUtility.SaveAsPrefabAsset(
-                Level.gameObject,
-                AssetDatabase.GetAssetPath(prefabParent));
-            CurrentLevel = Resources.LoadAll<SingleLevelController>(levelPrefabPath).Length + 1;
-            string newPath = levelAssetFolder + levelPrefix + CurrentLevel + ".prefab";
-            AssetDatabase.CopyAsset(AssetDatabase.GetAssetPath(prefabParent), newPath);
-            DestroyImmediate(Level.gameObject);
+            EditorSaveLevel();
+            // Sửa toàn bộ thành levelAssetPath để nhân bản đúng mục tiêu
+            string sourcePath = "Assets/Project/Resources/" + levelAssetPath + levelPrefix + level + ".asset";
+            LevelData sourceData = AssetDatabase.LoadAssetAtPath<LevelData>(sourcePath);
+            if (sourceData == null)
+            {
+                Debug.LogError("No source level found to clone at: " + sourcePath);
+                return;
+            }
+
+            string[] guids = AssetDatabase.FindAssets("t:LevelData", new[] { "Assets/Project/Resources/" + levelAssetPath });
+            CurrentLevel = guids.Length + 1;
+            string newPath = "Assets/Project/Resources/" + levelAssetPath + levelPrefix + CurrentLevel + ".asset";
+
+            AssetDatabase.CopyAsset(sourcePath, newPath);
             AssetDatabase.Refresh();
-            GameObject g = PrefabUtility.InstantiatePrefab(Resources.Load(levelPrefabPath + levelPrefix + CurrentLevel), transform) as GameObject;
-            Level = g.GetComponent<SingleLevelController>();
-            Level.name = levelPrefix + CurrentLevel;
-        }
+            LevelData newLevelData = AssetDatabase.LoadAssetAtPath<LevelData>(newPath);
+            newLevelData.levelIndex = CurrentLevel;
+            EditorUtility.SetDirty(newLevelData);
+            AssetDatabase.SaveAssets();
     }
 
     public void EditorGenerateAllSplineMeshes()
@@ -248,126 +165,19 @@ public class LevelController : Singleton<LevelController>
     public void EditorSaveLevel()
     {
         Instance = this;
-        if (Level == null)
-        {
-            Level = transform.GetComponentInChildren<SingleLevelController>();
-        }
-        if (Level != null)
-        {
-            GameObject prefabRoot = PrefabUtility.GetOutermostPrefabInstanceRoot(Level.gameObject);
-            if (prefabRoot != null)
-            {
-                PrefabUtility.UnpackPrefabInstance(prefabRoot, PrefabUnpackMode.OutermostRoot, InteractionMode.AutomatedAction);
-            }
-
-            // Auto-generate spline meshes on save
             EditorGenerateAllSplineMeshes();
 
-            // Recheck all of level's objects
-            //SaveGridDataToAsset();
-            DoSaveAssetDatabase();
-        }
+            // Sửa thành levelAssetPath để tạo đúng thư mục lưu trữ StageLevel
+            string assetFolder = "Assets/Project/Resources/" + levelAssetPath;
+            if (!System.IO.Directory.Exists(assetFolder))
+            {
+                System.IO.Directory.CreateDirectory(assetFolder);
+            }
+            //string assetPath = assetFolder + Level.name + ".asset";
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            //Debug.Log("Level saved successfully as ScriptableObject: " + assetPath);
     }
-
-    private void DoSaveAssetDatabase()
-    {
-        Object instanceRoot = PrefabUtility.GetCorrespondingObjectFromSource(Level.gameObject);
-        GameObject prefabParent = PrefabUtility.GetOutermostPrefabInstanceRoot(Level.gameObject);
-        if (instanceRoot == null)
-        {
-            PrefabUtility.SaveAsPrefabAssetAndConnect(
-                Level.gameObject,
-                levelAssetFolder + Level.name + ".prefab", InteractionMode.AutomatedAction);
-        }
-        else
-        {
-            PrefabUtility.SaveAsPrefabAsset(
-                Level.gameObject,
-                AssetDatabase.GetAssetPath(instanceRoot));
-            PrefabUtility.RevertPrefabInstance(prefabParent, InteractionMode.AutomatedAction);
-        }
-        AssetDatabase.Refresh();
-        EditorApplication.update -= DoSaveAssetDatabase;
-    }
-
-    public void EditorUpdateNumObstacle(int type)
-    {
-        Instance = this;
-
-    }
-
-    public void EditorUpdateNumFloor()
-    {
-        Instance = this;
-
-    }
-
-    public void EditorUpdateNumLoot(int type)
-    {
-        Instance = this;
-
-    }
-
-    public void EditorUpdateNumTrap(int type)
-    {
-        Instance = this;
-
-    }
-
-    public void EditorRelinkAllObstacles()
-    {
-        Instance = this;
-        EditorUnpackPrefab(Level.gameObject, PrefabUnpackMode.OutermostRoot, InteractionMode.AutomatedAction);
-
-    }
-
-    public void EditorSaveAll()
-    {
-        Instance = this;
-
-        int totalLevels = Resources.LoadAll<SingleLevelController>(levelPrefabPath).Length;
-        for (int i = 1; i < totalLevels + 1; i++)
-        {
-            EditorLoadLevel(i);
-            // DO SOMETHING WITH THE CURRENT LEVEL
-            // -----------------------------------
-            EditorSaveLevel();
-        }
-    }
-
-    public void EditorUnpackPrefab(GameObject currentObject, PrefabUnpackMode unpackMode, InteractionMode interactionMode)
-    {
-        EditorSaveLevel();
-        GameObject prefabRoot = PrefabUtility.GetOutermostPrefabInstanceRoot(currentObject);
-        if (prefabRoot != null)
-        {
-            PrefabUtility.UnpackPrefabInstance(prefabRoot, unpackMode, interactionMode);
-        }
-    }
-
-    public void RemoveSpecialLevel(int i)
-    {
-        ListLevelSpecials.RemoveAt(i);
-    }
-
-    public void AddSpecialLevel()
-    {
-        ListLevelSpecials.Add(new LevelAsset()
-        {
-            ID = ListLevelSpecials.Count
-        });
-    }
-
-    internal void ShowHint()
-    {
     }
 #endif
-
-    void OnEnable()
-    {
-        if (!Application.isPlaying)
-        {
-        }
-    }
-}
-

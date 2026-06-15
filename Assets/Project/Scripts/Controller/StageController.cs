@@ -99,26 +99,26 @@ public class StageController : MonoBehaviour
                 GlobalController.CurrentLevelIndex = 1;
             }
         }
-        mapIndex = LevelController.Instance.LoadLevel(GlobalController.CurrentLevelIndex, LevelLimit);
+        //mapIndex = LevelController.Instance.LoadLevel(GlobalController.CurrentLevelIndex, LevelLimit);
         StartCoroutine(CoStartLevel());
     }
 
     IEnumerator CoStartLevel()
     {
         // Setup level
-        LevelController.Instance.SetUpLevel();
+        //LevelController.Instance.SetUpLevel();
         yield return new WaitForSeconds(0.02f);
-        if (LevelController.Instance.Level != null)
+        GameUIController.Instance.ShowInGameUI(GlobalController.CurrentLevelIndex);
+        playTimeInSeconds = Time.realtimeSinceStartup;
+        /*if (LevelController.Instance.Level != null)
         {
             LevelController level = LevelController.Instance;
             LevelController.Instance.Level.SetUp();
             numGoalsDone = 0;
-            GameUIController.Instance.ShowInGameUI(GlobalController.CurrentLevelIndex);
             yield return new WaitForSeconds(0.02f);
-            playTimeInSeconds = Time.realtimeSinceStartup;
             yield return new WaitForSeconds(0.02f);
             level.Level.StartLevel();
-        }
+        }*/
     }
 
     public void StartGame()
