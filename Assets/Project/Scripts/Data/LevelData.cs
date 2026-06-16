@@ -16,8 +16,8 @@ public enum GameDifficult
 [CreateAssetMenu(fileName = "Level_Data", menuName = "Waterpark/Level Data", order = 1)]
 public class LevelData : ScriptableObject
 {
-    [Header("Level Configurations")]
     public int levelIndex;
     public GameDifficult _gameDifficulty = GameDifficult.Easy;
     public Mesh _meshBezierSpline;
+
 }

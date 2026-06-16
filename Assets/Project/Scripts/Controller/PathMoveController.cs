@@ -1,23 +1,6 @@
 using UnityEngine;
 
-public enum HoldState
-{
-    Lock,
-    Unlock,
-    OnSpot,
-    OnBezier,
-    CoupleHold,
-    Completed
-}
-
-public enum HoldType
-{
-    Normal,
-    Mystery,
-    Link
-}
-
-public class HoleController : MonoBehaviour
+public class PathMoveController : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

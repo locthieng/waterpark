@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Spot : MonoBehaviour
 {
-    private Hole CurHole;
+    public Hole CurHole { get; private set; }
     public SpotState _SpotState;
 
     public void SetHole(Hole hole)
