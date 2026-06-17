@@ -21,7 +21,7 @@ public class BlockCellData
 
     public Vector3 CellScale;
 
-    public int BlockCol;
+    public int BlockColor;
 
     public List<PendingBlockData> PendingBlockDataArr;
 

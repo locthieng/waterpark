@@ -2,5 +2,10 @@ using UnityEngine;
 
 public class BlockCell : MonoBehaviour
 {
-    private float PathDistForCollect;
+    public float PathDistForCollect;
+
+    public float GetPathDistForCollect()
+    {
+        return PathDistForCollect;
+    }
 }

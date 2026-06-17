@@ -12,6 +12,7 @@ public class Hole : MonoBehaviour
     public int _holeCapacity;
 
     private Spot _CurSpot;
+    private int NextAccessibleCellIdx = 0;
     [Header("Bezier Movement Settings")]
     [Tooltip("The walker component that controls the object's movement along the spline")]
     public BezierWalker walker;
@@ -44,15 +45,40 @@ public class Hole : MonoBehaviour
             {
                 walkerTime.onPathCompleted.AddListener(OnMovementCompleted);
             }
+
+            // Tự động tính khoảng cách các cell dựa trên Spline của Hole tại Start
+            if (walker.Spline != null && BlockCellController.Instance != null)
+            {
+                BlockCellController.Instance.InitializeCellDistances(walker.Spline);
+            }
         }
     }
 
     private void Update()
     {
-        //if (walker.enabled == true)
-        //{
-        //    Debug.Log("_CurPathTravelDist = " + GetCurPathTravelDist());
-        //}    
+        if (_holdState == HoldState.OnBezier)
+        {
+            TryCheckDistanceRealTime(GetCurPathTravelDist());
+        }
+    }
+
+    private void TryCheckDistanceRealTime(float curTravelDist)
+    {
+        if (BlockCellController.Instance == null)
+            return;
+
+        BlockCell targetCell = BlockCellController.Instance.GetCellByIndex(NextAccessibleCellIdx);
+        if (targetCell == null) 
+            return;
+
+        //Debug.Log($"[Check Distance] Hole Dist: {curTravelDist:F2} " +
+            //$"| Cell Dist: {targetCell.GetPathDistForCollect():F2} | Match: {curTravelDist >= targetCell.GetPathDistForCollect()}");
+
+        if (curTravelDist >= targetCell.GetPathDistForCollect())
+        {
+            Debug.Log($"[Match Triggered] Hole reached Cell {NextAccessibleCellIdx} at distance {targetCell.GetPathDistForCollect():F2}");
+            NextAccessibleCellIdx++;
+        }
     }
 
     private void OnMouseDown()
@@ -79,6 +105,13 @@ public class Hole : MonoBehaviour
             walker.NormalizedT = 0f;
             walker.enabled = true;
             _holdState = HoldState.OnBezier;
+            NextAccessibleCellIdx = 0;
+
+            if (walker.Spline != null && BlockCellController.Instance != null)
+            {
+                BlockCellController.Instance.InitializeCellDistances(walker.Spline);
+            }
+
             if (_CurSpot != null)
             {
                 var spotsController = InGameController.Instance.SpotsController;
@@ -163,7 +196,8 @@ public class Hole : MonoBehaviour
         if (walker != null && walker.Spline != null)
         {
             var spline = walker.Spline;
-            _curPathTravelDist = spline.evenlySpacedPoints.GetPercentageAtNormalizedT(walker.NormalizedT) * spline.evenlySpacedPoints.splineLength;
+            _curPathTravelDist = spline.evenlySpacedPoints.GetPercentageAtNormalizedT(walker.NormalizedT) 
+                * spline.evenlySpacedPoints.splineLength;
         }
         else
         {
