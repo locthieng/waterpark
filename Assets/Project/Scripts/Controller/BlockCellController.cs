@@ -40,7 +40,8 @@ public class BlockCellController : MonoBehaviour
 
             cell.PathDistForCollect = pathDist;
 
-            Debug.Log($"[Init Cell Dist] Cell: {cell.name} | Pos: {cell.transform.position} | NormalizedT: {normalizedT:F3} | PathDist: {pathDist:F2}");
+            Debug.Log($"[Init Cell Dist] Cell: {cell.name} " +
+                $"| Pos: {cell.transform.position} | NormalizedT: {normalizedT:F3} | PathDist: {pathDist:F2}");
         }
 
         // Sắp xếp các cell theo thứ tự tăng dần của khoảng cách để Hole duyệt qua đúng trình tự di chuyển
