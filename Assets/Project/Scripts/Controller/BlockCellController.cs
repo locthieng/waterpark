@@ -14,6 +14,15 @@ public class BlockCellController : MonoBehaviour
         Instance = this;
     }
 
+    public void SetUp()
+    {
+        for (int i = 0; i < AllBlockCells.Count; i++)
+        {
+            BlockCell _BlockCell = AllBlockCells[i];
+            _BlockCell.InitializeStack(_BlockCell.BlockColorList, _blockPrefab, _BlockCell._spacingBlock);
+        }
+    }    
+
     public BlockCell GetCellByIndex(int index)
     {
         if (index >= 0 && index < AllBlockCells.Count)

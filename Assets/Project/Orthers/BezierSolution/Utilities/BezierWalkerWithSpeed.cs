@@ -4,7 +4,6 @@ using UnityEngine.Events;
 namespace BezierSolution
 {
 	[AddComponentMenu( "Bezier Solution/Bezier Walker With Speed" )]
-	[HelpURL( "https://github.com/yasirkula/UnityBezierSolution" )]
 	public class BezierWalkerWithSpeed : BezierWalker
 	{
 		public BezierSpline spline;

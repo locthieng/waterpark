@@ -4,7 +4,6 @@ using UnityEngine;
 namespace BezierSolution
 {
 	[AddComponentMenu( "Bezier Solution/Bezier Walker Locomotion" )]
-	[HelpURL( "https://github.com/yasirkula/UnityBezierSolution" )]
 	public class BezierWalkerLocomotion : BezierWalker
 	{
 		public BezierWalker walker;

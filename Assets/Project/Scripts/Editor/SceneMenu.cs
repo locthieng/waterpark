@@ -55,6 +55,12 @@ public static class SceneMenu
         OpenScene("Assets/Project/Scenes/Splash.unity");
     }
 
+    [MenuItem("Tools/Scene/TestScene", false, 3)]
+    public static void OpenScene_Assets_Project_Scenes_TestScene_unity()
+    {
+        OpenScene("Assets/Project/Scenes/TestScene.unity");
+    }
+
     [MenuItem("Tools/Scene/Others/SampleScene", false, 105)]
     public static void OpenScene_Assets_Scenes_SampleScene_unity()
     {
