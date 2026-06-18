@@ -67,8 +67,7 @@ public class BlockCell : MonoBehaviour
         {
             Block newBlock = Instantiate(blockPrefab, this.transform);
             newBlock.Init(colors[i], this);
-            //CurBlocks.Add(newBlock);
-            CurBlocks.Insert(0, newBlock);
+            CurBlocks.Add(newBlock);
         }
         RepositionBlocks(blockSpacing);
     }
