@@ -13,19 +13,13 @@ public class BlockCell : MonoBehaviour
 
     public BlockCellAccessType AccessType { get; private set; } = BlockCellAccessType.NotAccessible;
 
-    public List<Block> CurBlocks { get; private set; } = new List<Block>();
+    public List<Block> CurBlocks = new List<Block>();
 
     public List<int> BlockColorList; // num block can appear in blockCell when start
 
     public List<BlockCell> ParentBlockCells = new List<BlockCell>();
 
     public List<BlockCell> ChildBlockCells = new List<BlockCell>();
-
-    public Block TopBlock => CurBlocks.Count > 0 ? CurBlocks[CurBlocks.Count - 1] : null;
-
-    public int TopColorID => TopBlock != null ? TopBlock.ColorID : -1;
-
-    public int CurVisibleBlockCt => CurBlocks.Count;
 
     public bool IsEmpty => CurBlocks.Count == 0;
 
@@ -67,17 +61,15 @@ public class BlockCell : MonoBehaviour
 
     public void InitializeStack(List<int> colors, Block blockPrefab, float blockSpacing)
     {
-        //ClearAllBlocks();
-
         if (colors == null || colors.Count == 0 || blockPrefab == null) return;
 
         for (int i = 0; i < colors.Count; i++)
         {
             Block newBlock = Instantiate(blockPrefab, this.transform);
             newBlock.Init(colors[i], this);
-            CurBlocks.Add(newBlock);
+            //CurBlocks.Add(newBlock);
+            CurBlocks.Insert(0, newBlock);
         }
-        Debug.Log("InitializeStack  +2");
         RepositionBlocks(blockSpacing);
     }
 
@@ -117,18 +109,4 @@ public class BlockCell : MonoBehaviour
         BlockColorList.Add(block.ColorID);
     }
 
-    public Block RemoveTopBlock()
-    {
-        if (IsEmpty) return null;
-
-        Block top = TopBlock;
-        CurBlocks.RemoveAt(CurBlocks.Count - 1);
-        
-        if (BlockColorList.Count > 0)
-        {
-            BlockColorList.RemoveAt(BlockColorList.Count - 1);
-        }
-
-        return top;
-    }
 }

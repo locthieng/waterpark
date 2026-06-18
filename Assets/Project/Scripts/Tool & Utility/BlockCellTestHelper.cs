@@ -45,14 +45,6 @@ public class BlockCellTestHelper : MonoBehaviour
             return;
         }
 
-        Block collected = testCell.RemoveTopBlock();
-        if (collected != null)
-        {
-            Debug.Log($"[BlockCellTestHelper] Đã thu thập khối đỉnh: Color {collected.ColorID}. Đang tiến hành hủy GameObject...");
-            Destroy(collected.gameObject);
-            
-            // Đợi đến cuối frame để GameObject bị hủy thực sự rồi cập nhật visual
-        }
     }
 
 
