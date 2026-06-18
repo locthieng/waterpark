@@ -1,18 +1,26 @@
-using UnityEngine;
 using BezierSolution;
+using Common.Helper;
 using System;
+using UnityEngine;
 
 public class Hole : MonoBehaviour
 {
     private float _curPathTravelDist;
 
     public int _ColorID;
+
     public HoldState _holdState;
+
     public HoldType _holdType;
+
     public int _holeCapacity;
 
     private Spot _CurSpot;
+
     private int NextAccessibleCellIdx = 0;
+
+    public Renderer _rendererHole;
+
     [Header("Bezier Movement Settings")]
     [Tooltip("The walker component that controls the object's movement along the spline")]
     public BezierWalker walker;
@@ -61,6 +69,11 @@ public class Hole : MonoBehaviour
             TryCheckDistanceRealTime(GetCurPathTravelDist());
         }
     }
+
+    public void SetUp()
+    {
+        ApplyColorFromDatabase();
+    }    
 
     private void TryCheckDistanceRealTime(float curTravelDist)
     {
@@ -204,5 +217,30 @@ public class Hole : MonoBehaviour
             _curPathTravelDist = 0f;
         }
         return _curPathTravelDist;
-    }    
+    }
+
+    private void ApplyColorFromDatabase()
+    {
+        if (_rendererHole == null) return;
+
+        if (InGameController.Instance != null && InGameController.Instance._GameDataBase != null)
+        {
+            var colorList = InGameController.Instance._GameDataBase.Colors;
+
+            if (_ColorID >= 0 && _ColorID < colorList.Count)
+            {
+                Color targetColor = colorList[_ColorID];
+
+                _rendererHole.SetBaseColor(targetColor);
+            }
+            else
+            {
+                Debug.LogWarning($"ColorID {_ColorID} không có trong GameDataBase kìa!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Chưa có InGameController hoặc GameDataBase chưa được gán!");
+        }
+    }
 }

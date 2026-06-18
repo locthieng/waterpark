@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public enum HoldState
 {
@@ -19,15 +20,11 @@ public enum HoldType
 
 public class HoleController : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public List<Hole> AllHoles = new List<Hole>();
 
-    // Update is called once per frame
-    void Update()
+    public void SetUp()
     {
-        
-    }
+        for (int i = 0; i < AllHoles.Count; i++) { AllHoles[i].SetUp(); }
+    }    
+
 }
