@@ -4,7 +4,6 @@ using UnityEngine.Events;
 namespace BezierSolution
 {
 	[AddComponentMenu( "Bezier Solution/Bezier Walker With Time" )]
-	[HelpURL( "https://github.com/yasirkula/UnityBezierSolution" )]
 	public class BezierWalkerWithTime : BezierWalker
 	{
 		public BezierSpline spline;

@@ -11,7 +11,6 @@ using PrefabStageUtility = UnityEditor.Experimental.SceneManagement.PrefabStageU
 namespace BezierSolution
 {
 	[AddComponentMenu( "Bezier Solution/Bend Mesh Along Bezier" )]
-	[HelpURL( "https://github.com/yasirkula/UnityBezierSolution" )]
 	[RequireComponent( typeof( MeshFilter ) )]
 	[ExecuteInEditMode]
 	public class BendMeshAlongBezier : MonoBehaviour

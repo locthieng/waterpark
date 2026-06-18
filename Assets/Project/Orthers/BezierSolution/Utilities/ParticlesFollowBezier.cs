@@ -4,7 +4,6 @@ using UnityEngine;
 namespace BezierSolution
 {
 	[AddComponentMenu( "Bezier Solution/Particles Follow Bezier" )]
-	[HelpURL( "https://github.com/yasirkula/UnityBezierSolution" )]
 	[RequireComponent( typeof( ParticleSystem ) )]
 	[ExecuteInEditMode]
 	public class ParticlesFollowBezier : MonoBehaviour
@@ -69,7 +68,6 @@ namespace BezierSolution
 
 				cachedPS.GetCustomParticleData( particleData, ParticleSystemCustomData.Custom1 );
 
-				// Credit: https://forum.unity3d.com/threads/access-to-the-particle-system-lifecycle-events.328918/#post-2295977
 				for( int i = 0; i < aliveParticles; i++ )
 				{
 					Vector4 particleDat = particleData[i];

@@ -3,7 +3,6 @@
 namespace BezierSolution
 {
 	[AddComponentMenu( "Bezier Solution/Bezier Attachment" )]
-	[HelpURL( "https://github.com/yasirkula/UnityBezierSolution" )]
 	[ExecuteInEditMode]
 	public class BezierAttachment : MonoBehaviour
 	{
