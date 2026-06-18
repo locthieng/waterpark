@@ -58,7 +58,6 @@ public class BlockCellTestHelper : MonoBehaviour
         int colorID = testColors.Count > 0 ? testColors[testColors.Count - 1] : 1;
         newBlock.Init(colorID, testCell);
 
-        testCell.AddBlockToTop(newBlock);
         testCell.RepositionBlocks(blockSpacing);
         
         Debug.Log($"[BlockCellTestHelper] Đã thêm khối mới màu {colorID} vào ĐỈNH stack.");
@@ -73,7 +72,6 @@ public class BlockCellTestHelper : MonoBehaviour
         int colorID = testColors.Count > 0 ? testColors[0] : 1;
         newBlock.Init(colorID, testCell);
         
-        testCell.AddBlockToBottom(newBlock);
         testCell.RepositionBlocks(blockSpacing);
 
         Debug.Log($"[BlockCellTestHelper] Đã thêm khối mới màu {colorID} vào ĐÁY stack. Đã dịch chuyển các khối cũ nối đuôi tiếp theo.");

@@ -7,6 +7,7 @@ public class BlockCellController : MonoBehaviour
     public static BlockCellController Instance { get; private set; }
 
     public Block _blockPrefab;
+
     public List<BlockCell> AllBlockCells = new List<BlockCell>();
 
     private void Awake()
@@ -19,7 +20,7 @@ public class BlockCellController : MonoBehaviour
         for (int i = 0; i < AllBlockCells.Count; i++)
         {
             BlockCell _BlockCell = AllBlockCells[i];
-            _BlockCell.InitializeStack(_BlockCell.BlockColorList, _blockPrefab, _BlockCell._spacingBlock);
+            _BlockCell.InitializeStack(_BlockCell.BlockColorList, _blockPrefab, _BlockCell._spacingBlock, true);
         }
     }    
 

@@ -59,7 +59,7 @@ public class BlockCell : MonoBehaviour
         }
     }
 
-    public void InitializeStack(List<int> colors, Block blockPrefab, float blockSpacing)
+    public void InitializeStack(List<int> colors, Block blockPrefab, float blockSpacing, bool isInitializeStart = false)
     {
         if (colors == null || colors.Count == 0 || blockPrefab == null) return;
 
@@ -70,6 +70,7 @@ public class BlockCell : MonoBehaviour
             CurBlocks.Add(newBlock);
         }
         RepositionBlocks(blockSpacing);
+        if (isInitializeStart) CurBlocks.Reverse();
     }
 
     public void ClearAllBlocks()
@@ -89,23 +90,4 @@ public class BlockCell : MonoBehaviour
         CurBlocks.Clear();
         BlockColorList.Clear();
     }
-
-    public void AddBlockToBottom(Block block)
-    {
-        if (block == null) return;
-
-        block.transform.SetParent(this.transform);
-        CurBlocks.Insert(0, block);
-        BlockColorList.Insert(0, block.ColorID);
-    }
-
-    public void AddBlockToTop(Block block)
-    {
-        if (block == null) return;
-
-        block.transform.SetParent(this.transform);
-        CurBlocks.Add(block);
-        BlockColorList.Add(block.ColorID);
-    }
-
 }
