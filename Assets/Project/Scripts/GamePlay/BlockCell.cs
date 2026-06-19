@@ -7,7 +7,7 @@ public class BlockCell : MonoBehaviour
 
     public float PathDistForCollect;
 
-    public float SpawnerDirectionAngleZ => _RotationAngleIndicator.z;
+    public float SpawnerDirectionAngleZ = 90f;
 
     public float SpawnWaitTimeAfterFill = 0.1f;
 
@@ -15,11 +15,7 @@ public class BlockCell : MonoBehaviour
 
     public List<Block> CurBlocks = new List<Block>();
 
-    public List<int> BlockColorList; // num block can appear in blockCell when start
-
-    public List<BlockCell> ParentBlockCells = new List<BlockCell>();
-
-    public List<BlockCell> ChildBlockCells = new List<BlockCell>();
+    public List<PendingBlockData> PendingBlockDatas = new List<PendingBlockData>();
 
     public bool IsEmpty => CurBlocks.Count == 0;
 
@@ -28,7 +24,23 @@ public class BlockCell : MonoBehaviour
     [SerializeField] private GameObject _Indicator;
     [SerializeField] private GameObject _ParentIndicator;
 
-    private Vector3 _RotationAngleIndicator => _Indicator.transform.rotation.eulerAngles;
+    private void Awake()
+    {
+        UpdateIndicatorRotation();
+    }
+
+    private void OnValidate()
+    {
+        UpdateIndicatorRotation();
+    }
+
+    public void UpdateIndicatorRotation()
+    {
+        if (_Indicator != null)
+        {
+            _Indicator.transform.localRotation = Quaternion.Euler(0f, 0f, SpawnerDirectionAngleZ);
+        }
+    }
 
     public float GetPathDistForCollect()
     {
@@ -50,12 +62,37 @@ public class BlockCell : MonoBehaviour
     public void RepositionBlocks(float blockSpacing)
     {
         Vector3 spawnDirection = GetSpawnDirection();
-        Debug.Log("spawnDirection = " + GetSpawnDirection());
-        for (int i = 0; i < CurBlocks.Count; i++)
+        int blockIndex = 0;
+        if (PendingBlockDatas != null && PendingBlockDatas.Count > 0)
         {
-            if (CurBlocks[i] == null) continue;
-            CurBlocks[i].transform.localPosition = spawnDirection * (i * blockSpacing);
-            CurBlocks[i].transform.localRotation = Quaternion.identity;
+            for (int c = 0; c < PendingBlockDatas.Count; c++)
+            {
+                var pending = PendingBlockDatas[c];
+                if (pending == null) continue;
+                for (int r = 0; r < pending.StackCt; r++)
+                {
+                    if (blockIndex < CurBlocks.Count)
+                    {
+                        Block block = CurBlocks[blockIndex];
+                        if (block != null)
+                        {
+                            block.transform.localPosition = spawnDirection * (c * blockSpacing) + Vector3.back * (r * blockSpacing);
+                            block.transform.localRotation = Quaternion.identity;
+                        }
+                        blockIndex++;
+                    }
+                }
+            }
+        }
+        
+        // Fallback for any extra blocks
+        for (int i = blockIndex; i < CurBlocks.Count; i++)
+        {
+            if (CurBlocks[i] != null)
+            {
+                CurBlocks[i].transform.localPosition = spawnDirection * (i * blockSpacing);
+                CurBlocks[i].transform.localRotation = Quaternion.identity;
+            }
         }
     }
 
@@ -73,6 +110,25 @@ public class BlockCell : MonoBehaviour
         if (isInitializeStart) CurBlocks.Reverse();
     }
 
+    public void InitializeStackFromPending(Block blockPrefab, float blockSpacing, bool isInitializeStart = false)
+    {
+        List<int> colors = new List<int>();
+        if (PendingBlockDatas != null)
+        {
+            foreach (var pending in PendingBlockDatas)
+            {
+                if (pending != null)
+                {
+                    for (int i = 0; i < pending.StackCt; i++)
+                    {
+                        colors.Add(pending.BlockCol);
+                    }
+                }
+            }
+        }
+        InitializeStack(colors, blockPrefab, blockSpacing, isInitializeStart);
+    }
+
     public void ClearAllBlocks()
     {
         for (int i = transform.childCount - 1; i >= 0; i--)
@@ -88,6 +144,5 @@ public class BlockCell : MonoBehaviour
         }
 
         CurBlocks.Clear();
-        BlockColorList.Clear();
     }
 }

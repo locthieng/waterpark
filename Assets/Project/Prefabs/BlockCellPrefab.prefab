@@ -31,7 +31,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4243736805655561}
-  m_LocalEulerAnglesHint: {x: 0, y: -0, z: -90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &212587765826080250
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -134,7 +134,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CellType: 2
   PathDistForCollect: 0
+  SpawnerDirectionAngleZ: 90
   SpawnWaitTimeAfterFill: 0.1
+  CurBlocks: []
   BlockColorList: 
   ParentBlockCells: []
   ChildBlockCells: []

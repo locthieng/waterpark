@@ -1,9 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Common.Helper; 
 
 public class Block : MonoBehaviour
 {
-    public int ColorID { get; private set; }
+    public int ColorID;
 
     public BlockCell OwnerCell { get; private set; }
 
@@ -16,7 +16,6 @@ public class Block : MonoBehaviour
         ColorID = colorID;
         OwnerCell = ownerCell;
 
-        // Đổi màu ngay khi Init
         ApplyColorFromDatabase();
     }
 
