@@ -1,0 +1,257 @@
+.editor-container {
+    flex-grow: 1;
+    background-color: #202020;
+    color: #e0e0e0;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* TOP TOOLBAR */
+.toolbar {
+    height: 38px;
+    flex-direction: row;
+    align-items: center;
+    background-color: #181818;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom-width: 1px;
+    border-bottom-color: #3c3c3c;
+}
+
+.toolbar-label {
+    margin-right: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #c8c8c8;
+}
+
+.toolbar-int-field {
+    width: 50px;
+    margin-right: 10px;
+}
+
+.toolbar-int-field #unity-text-input {
+    text-align: center;
+    background-color: #2d2d2d;
+    color: #ffffff;
+    border-color: #444444;
+}
+
+.btn-tool {
+    height: 26px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+    border-width: 1px;
+    border-color: #484848;
+    border-radius: 4px;
+    margin-left: 4px;
+    font-size: 11px;
+}
+
+.btn-tool:hover {
+    background-color: #404040;
+    border-color: #606060;
+}
+
+.btn-save {
+    background-color: #2e7d32;
+    color: #ffffff;
+    border-color: #1b5e20;
+    font-weight: bold;
+}
+
+.btn-save:hover {
+    background-color: #388e3c;
+}
+
+.btn-add {
+    background-color: #1565c0;
+    color: #ffffff;
+    border-color: #0d47a1;
+}
+
+.btn-add:hover {
+    background-color: #1976d2;
+}
+
+/* MAIN LAYOUT */
+.main-layout {
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+/* SIDEBAR LEFT */
+.sidebar-left {
+    background-color: #252526;
+    padding: 10px;
+}
+
+/* BRUSHES */
+.brush-list {
+    flex-direction: column;
+}
+
+.btn-brush {
+    margin-bottom: 5px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    background-color: #2d2d30;
+    color: #dcdcdc;
+    border-width: 1px;
+    border-color: #3e3e42;
+    border-radius: 4px;
+    font-size: 11px;
+    text-align: left;
+    padding-left: 12px;
+}
+
+.btn-brush:hover {
+    background-color: #3f3f46;
+    border-color: #555559;
+}
+
+.btn-brush-active {
+    background-color: #007acc;
+    color: #ffffff;
+    border-color: #007acc;
+    font-weight: bold;
+}
+
+/* COLOR PALETTE */
+.color-palette {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
+
+.color-palette-item {
+    width: 32px;
+    height: 32px;
+    margin: 4px;
+    border-width: 1px;
+    border-color: #444444;
+    border-radius: 4px;
+    cursor: link;
+    transition: scale 0.1s ease;
+}
+
+.color-palette-item:hover {
+    scale: 1.1;
+}
+
+.color-palette-item-selected {
+    border-width: 2px;
+    border-color: #ffffff;
+    scale: 1.05;
+}
+
+/* CENTER WORKSPACE PREVIEW */
+.center-content {
+    flex-grow: 1;
+    background-color: #1e1e1e;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-text {
+    font-size: 13px;
+    color: #707070;
+    font-style: italic;
+}
+
+/* SIDEBAR RIGHT */
+.sidebar-right {
+    background-color: #252526;
+    padding: 10px;
+}
+
+/* SECTIONS */
+.section-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #569cd6;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    border-bottom-width: 1px;
+    border-bottom-color: #3e3e42;
+    padding-bottom: 4px;
+}
+
+.info-label {
+    font-size: 11px;
+    color: #a0a0a0;
+    margin-bottom: 6px;
+}
+
+/* CATEGORY TABS */
+.category-tabs {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: #3e3e42;
+    background-color: #1e1e1e;
+}
+
+.tab-button {
+    flex-grow: 1;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin: 0;
+    background-color: transparent;
+    color: #aaaaaa;
+    border-width: 0;
+    border-bottom-width: 2px;
+    border-bottom-color: transparent;
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.tab-button:hover {
+    background-color: #2d2d30;
+    color: #ffffff;
+}
+
+.tab-button-active {
+    background-color: #252526;
+    color: #ffffff;
+    border-bottom-color: #007acc;
+}
+
+/* SPLINE POINTS LIST */
+.spline-point-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    padding: 3px 6px;
+    background-color: #2a2a2d;
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: #3e3e42;
+}
+
+.spline-point-label {
+    font-size: 10px;
+    color: #dcdcdc;
+    flex-grow: 1;
+    font-family: "Consolas", monospace;
+}
+
+.btn-spline-action {
+    font-size: 9px;
+    padding: 1px 4px;
+    margin-left: 2px;
+    background-color: #3e3e42;
+    color: #ffffff;
+    border-width: 0;
+    border-radius: 2px;
+    height: 18px;
+}
+
+.btn-spline-action:hover {
+    background-color: #505055;
+}

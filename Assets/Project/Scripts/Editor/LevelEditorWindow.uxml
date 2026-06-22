@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd">
+    <ui:VisualElement class="editor-container">
+        <!-- WARNING CONTAINER (Shown when LevelController is missing) -->
+        <ui:VisualElement name="warning-container" style="display: none; padding: 30px; align-items: center; justify-content: center; flex-grow: 1;">
+            <ui:Label text="⚠️ LevelController not found in the current Scene." style="color: #ffb74d; font-size: 15px; font-weight: bold; margin-bottom: 15px;" />
+            <ui:Button name="btn-open-scene" text="Open Game Scene" class="btn-tool btn-add" style="height: 34px; padding-left: 25px; padding-right: 25px; font-size: 13px;" />
+        </ui:VisualElement>
+
+        <!-- MAIN EDITOR CONTAINER -->
+        <ui:VisualElement name="main-editor-container" style="flex-grow: 1;">
+            <!-- TOP TOOLBAR -->
+            <ui:VisualElement class="toolbar">
+                <ui:Label text="Level:" class="toolbar-label" />
+                <ui:IntegerField name="level-input" value="1" class="toolbar-int-field" />
+                
+                <ui:Button name="btn-load" text="LOAD" class="btn-tool" />
+                <ui:Button name="btn-prev" text="◀◀ Prev" class="btn-tool" />
+                <ui:Button name="btn-next" text="Next ▶▶" class="btn-tool" />
+                <ui:Button name="btn-clone" text="CLONE" class="btn-tool" />
+                <ui:Button name="btn-save" text="💾 SAVE LEVEL" class="btn-tool btn-save" />
+                <ui:Button name="btn-add" text="+ ADD NEW" class="btn-tool btn-add" />
+            </ui:VisualElement>
+
+            <!-- MAIN LAYOUT (Using nested TwoPaneSplitViews for resizable panels) -->
+            <ui:TwoPaneSplitView orientation="horizontal" fixed-pane-index="0" fixed-pane-initial-dimension="240" style="flex-grow: 1;">
+                <!-- Pane 1 (Left Sidebar with Tab Switcher) -->
+                <ui:VisualElement class="sidebar-left" style="min-width: 180px; flex-grow: 1;">
+                    <!-- TAB SWITCHER -->
+                    <ui:VisualElement name="category-tabs" class="category-tabs">
+                        <ui:Button name="tab-block" text="Block" class="tab-button tab-button-active" />
+                        <ui:Button name="tab-map" text="Map" class="tab-button" />
+                        <ui:Button name="tab-pipe" text="Pipe" class="tab-button" />
+                        <ui:Button name="tab-hole" text="Hole" class="tab-button" />
+                        <ui:Button name="tab-spline" text="Spline" class="tab-button" />
+                    </ui:VisualElement>
+
+                    <!-- TAB 1: BLOCK PANEL -->
+                    <ui:VisualElement name="panel-tab-block" style="display: flex;">
+
+                        <ui:Label text="BẢNG MÀU BLOCK" class="section-title" />
+                        <ui:VisualElement name="color-palette-container" class="color-palette" />
+                    </ui:VisualElement>
+
+                    <!-- TAB 2: MAP PANEL -->
+                    <ui:VisualElement name="panel-tab-map" style="display: none;">
+                        <ui:Label text="BÀN CỜ (MAP)" class="section-title" />
+                        <ui:IntegerField label="Cột (Width)" value="7" />
+                        <ui:IntegerField label="Dòng (Height)" value="9" />
+                        <ui:FloatField label="Kích thước ô" value="1" />
+                        <ui:Button name="btn-generate-grid" text="⚡ Khởi Tạo Lưới Trống" class="btn-tool btn-add" style="margin-left: 0; margin-top: 10px; height: 30px; font-weight: bold;" />
+                    </ui:VisualElement>
+
+                    <!-- TAB 3: PIPE PANEL -->
+                    <ui:VisualElement name="panel-tab-pipe" style="display: none;">
+                        <ui:Label text="ỐNG THẢ (PIPES)" class="section-title" />
+                        <ui:Button name="brush-paint-pipe" text="Paint Pipe Brush" class="btn-brush" />
+                        <ui:IntegerField label="Độ Bền (Pipe Strength)" value="1" />
+                    </ui:VisualElement>
+
+                    <!-- TAB 4: HOLE PANEL -->
+                    <ui:VisualElement name="panel-tab-hole" style="display: none;">
+                        <ui:Label text="HỐ THU THẬP (HOLES)" class="section-title" />
+                        <ui:Button name="brush-paint-hole-collect" text="Paint Hole Brush" class="btn-brush" />
+                        <ui:IntegerField label="Sức Chứa Hố" value="3" />
+                    </ui:VisualElement>
+
+                    <!-- TAB 5: SPLINE PANEL -->
+                    <ui:VisualElement name="panel-tab-spline" style="display: none;">
+                        <ui:Label text="ĐƯỜNG ĐI (BEZIER SPLINE)" class="section-title" />
+                        <ui:Button name="btn-find-spline" text="🔍 Auto Find Spline" class="btn-tool" style="margin-left: 0; margin-bottom: 8px; height: 26px; font-weight: bold;" />
+                        
+                        <uie:ObjectField name="spline-builder-field" label="Spline Builder" type="SplineMeshBuilder, Assembly-CSharp" />
+                        
+                        <ui:VisualElement name="spline-settings-container" style="display: none; margin-top: 8px;">
+                            <ui:Label text="Cấu Hình Điểm Spline:" class="info-label" style="font-weight: bold;" />
+                            <ui:VisualElement style="flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
+                                <ui:Button name="btn-spline-add-point" text="➕ Add Point" class="btn-tool" style="flex-grow: 1; margin-left: 0; margin-right: 2px;" />
+                                <ui:Button name="btn-spline-remove-point" text="➖ Remove Last" class="btn-tool" style="flex-grow: 1; margin-left: 2px; margin-right: 0;" />
+                            </ui:VisualElement>
+                            <ui:Toggle name="toggle-spline-loop" label="Đóng Vòng (Loop)" />
+
+                            <!-- BOX SHOWING POINTS -->
+                            <ui:Label text="Danh Sách Các Điểm (Points):" class="info-label" style="font-weight: bold; margin-top: 10px;" />
+                            <ui:ScrollView name="spline-points-list" style="max-height: 180px; background-color: #1a1a1a; border-width: 1px; border-color: #3e3e42; padding: 5px; margin-bottom: 8px; border-radius: 4px;" />
+
+                            <ui:Label text="Cấu Hinh Mesh:" class="info-label" style="font-weight: bold; margin-top: 8px;" />
+                            <ui:FloatField name="field-mesh-width" label="Độ Rộng Mesh" />
+                            <ui:IntegerField name="field-mesh-res" label="Độ Phân Giải (Res)" />
+                            <ui:FloatField name="field-mesh-tiling" label="UV Tiling" />
+                            <ui:Toggle name="toggle-mesh-normal" label="Use Spline Normal" />
+
+                            <ui:Button name="btn-generate-mesh" text="🔨 Generate &amp; Save Mesh" class="btn-tool btn-add" style="margin-left: 0; margin-top: 12px; height: 32px; font-weight: bold; font-size: 11px;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- Pane 2 (Center & Right Sidebar Split View) -->
+                <ui:TwoPaneSplitView orientation="horizontal" fixed-pane-index="1" fixed-pane-initial-dimension="260" style="flex-grow: 1;">
+                    <!-- Inner Pane 1 (Center Content) -->
+                    <ui:VisualElement class="center-content" style="flex-grow: 1;">
+                        <ui:Label text="Tương Tác Trên Scene View Để Vẽ Lưới" class="center-text" />
+                    </ui:VisualElement>
+
+                    <!-- Inner Pane 2 (Right Scrollable Sidebar) -->
+                    <ui:ScrollView class="sidebar-right" style="min-width: 180px; flex-grow: 1;">
+                        <ui:Label text="THÔNG TIN LEVEL" class="section-title" />
+                        <ui:Label name="lbl-current-level" text="Active Level: Level_1" class="info-label" />
+                        
+                        <!-- BINDINGS TO LEVEL DATA PROPERTIES -->
+                        <uie:PropertyField binding-path="_gameDifficulty" label="Độ Khó" />
+                        <uie:PropertyField binding-path="_meshBezierSpline" label="Mesh Spline" />
+
+                        <!-- BLOCK CELL PANEL -->
+                        <ui:VisualElement name="cell-detail-panel" style="margin-top: 20px;">
+                            <ui:Label text="Ô ĐANG CHỌN (BLOCK CELL)" class="section-title" />
+                            <ui:Label name="lbl-cell-coords" text="Tọa độ: Không có" class="info-label" />
+                            <!-- Cell Properties Placeholders -->
+                            <uie:EnumField name="cell-type-field" label="Loại Ô" type="BlockCellType, Assembly-CSharp" />
+                            <ui:FloatField name="cell-path-dist-field" label="Khoảng cách Path" />
+                            <ui:FloatField name="cell-spawner-angle-field" label="Góc Spawner (Z)" />
+                        </ui:VisualElement>
+                    </ui:ScrollView>
+                </ui:TwoPaneSplitView>
+            </ui:TwoPaneSplitView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
