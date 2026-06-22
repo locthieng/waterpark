@@ -20,6 +20,8 @@ public class Hole : MonoBehaviour
 
     private int NextAccessibleCellIdx = 0;
 
+    private List<CellDistEntry> _sortedCellSnapshot = new List<CellDistEntry>();
+
     private int _flyingBlocksCount = 0;
     private bool _shouldDeactivateAfterFly = false;
 
@@ -57,11 +59,6 @@ public class Hole : MonoBehaviour
             {
                 walkerTime.onPathCompleted.AddListener(OnMovementCompleted);
             }
-
-            if (walker.Spline != null && BlockCellController.Instance != null)
-            {
-                BlockCellController.Instance.InitializeCellDistances(walker.Spline);
-            }
         }
     }
 
@@ -80,14 +77,15 @@ public class Hole : MonoBehaviour
 
     private void TryCheckDistanceRealTime(float curTravelDist)
     {
-        if (BlockCellController.Instance == null)
+        if (_sortedCellSnapshot == null || NextAccessibleCellIdx >= _sortedCellSnapshot.Count)
             return;
 
-        BlockCell targetCell = BlockCellController.Instance.GetCellByIndex(NextAccessibleCellIdx);
+        CellDistEntry entry = _sortedCellSnapshot[NextAccessibleCellIdx];
+        BlockCell targetCell = entry.Cell;
         if (targetCell == null) 
             return;
 
-        if (curTravelDist >= targetCell.GetPathDistForCollect())
+        if (curTravelDist >= entry.PathDist)
         {
             
             if (targetCell.CurBlocks != null && targetCell.CurBlocks.Count > 0)
@@ -172,9 +170,10 @@ public class Hole : MonoBehaviour
             _flyingBlocksCount = 0;
             _shouldDeactivateAfterFly = false;
 
+            // Tạo snapshot riêng cho Hole này, không ảnh hưởng Hole khác
             if (walker.Spline != null && BlockCellController.Instance != null)
             {
-                BlockCellController.Instance.InitializeCellDistances(walker.Spline);
+                _sortedCellSnapshot = BlockCellController.Instance.CalculateSortedCellDistances(walker.Spline);
             }
 
             if (_CurSpot != null)

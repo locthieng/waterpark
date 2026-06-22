@@ -21,8 +21,6 @@ public class BlockCell : MonoBehaviour
 
     public int MaxInitialPendingDataLimit = 3; // Limit of how many PendingBlockDatas can be spawned/created initially
 
-    private Block _cachedBlockPrefab;
-
     private List<int> _activeColOrder = new List<int>();
 
     private int _nextPendingDataIndex = 0;
@@ -83,7 +81,8 @@ public class BlockCell : MonoBehaviour
                         Block block = CurBlocks[blockIndex];
                         if (block != null)
                         {
-                            block.transform.localPosition = spawnDirection * (c * blockSpacing) + Vector3.back * (r * blockSpacing);
+                            block.transform.localPosition = 
+                                spawnDirection * (c * blockSpacing) + Vector3.back * (r * blockSpacing);
                             block.transform.localRotation = Quaternion.identity;
                         }
                         blockIndex++;
@@ -103,9 +102,9 @@ public class BlockCell : MonoBehaviour
         }
     }
 
-    public void InitializeStack(List<int> colors, Block blockPrefab, float blockSpacing, bool isInitializeStart = false, List<int> columns = null)
+    public void InitializeStack(List<int> colors, Block blockPrefab, float blockSpacing,
+        bool isInitializeStart = false, List<int> columns = null)
     {
-        _cachedBlockPrefab = blockPrefab;
         if (colors == null || colors.Count == 0 || blockPrefab == null) return;
 
         for (int i = 0; i < colors.Count; i++)
@@ -190,7 +189,7 @@ public class BlockCell : MonoBehaviour
         }
 
         // 2. Spawn new columns from PendingBlockDatas if there is space
-        if (PendingBlockDatas != null && _cachedBlockPrefab != null)
+        if (PendingBlockDatas != null)
         {
             while (_activeColOrder.Count < MaxInitialPendingDataLimit && _nextPendingDataIndex < PendingBlockDatas.Count)
             {
@@ -199,13 +198,12 @@ public class BlockCell : MonoBehaviour
                 {
                     for (int i = 0; i < pending.StackCt; i++)
                     {
-                        Block newBlock = Instantiate(_cachedBlockPrefab, this.transform);
+                        Block newBlock = Instantiate(BlockCellController.Instance._blockPrefab, this.transform);
                         newBlock.Init(pending.BlockCol, this);
                         newBlock.ColumnIndex = _nextPendingDataIndex;
                         
-                        // Set initial local position of the newly spawned block at the back of the queue
-                        int newColTarget = MaxInitialPendingDataLimit - 1 - _activeColOrder.Count;
-                        Vector3 startPos = GetSpawnDirection() * (newColTarget * _spacingBlock) + Vector3.back * (i * _spacingBlock);
+                        // Spawn tại gốc (origin), bước 3 sẽ animate di chuyển lên vị trí đích
+                        Vector3 startPos = Vector3.zero + Vector3.back * (i * _spacingBlock);
                         newBlock.transform.localPosition = startPos;
 
                         CurBlocks.Add(newBlock);

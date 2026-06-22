@@ -2,6 +2,13 @@ using UnityEngine;
 using System.Collections.Generic;
 using BezierSolution;
 
+[System.Serializable]
+public struct CellDistEntry
+{
+    public BlockCell Cell;
+    public float PathDist;
+}
+
 public class BlockCellController : MonoBehaviour
 {
     public static BlockCellController Instance { get; private set; }
@@ -96,6 +103,38 @@ public class BlockCellController : MonoBehaviour
 
         // Sắp xếp các cell theo thứ tự tăng dần của khoảng cách để Hole duyệt qua đúng trình tự di chuyển
         AllBlockCells.Sort((a, b) => a.PathDistForCollect.CompareTo(b.PathDistForCollect));
+    }
+
+    /// <summary>
+    /// Tính khoảng cách PathDist cho từng BlockCell theo spline, trả về danh sách sorted mới.
+    /// KHÔNG modify AllBlockCells hay PathDistForCollect trên BlockCell.
+    /// Mỗi Hole gọi method này để lấy snapshot riêng.
+    /// </summary>
+    public List<CellDistEntry> CalculateSortedCellDistances(BezierSpline spline)
+    {
+        List<CellDistEntry> result = new List<CellDistEntry>(AllBlockCells.Count);
+        if (spline == null) return result;
+
+        const float rayLength = 100f;
+
+        foreach (var cell in AllBlockCells)
+        {
+            if (cell == null) continue;
+
+            Vector3 worldDir = cell.transform.TransformDirection(cell.GetSpawnDirection()).normalized;
+            Vector3 lineStart = cell.transform.position;
+            Vector3 lineEnd = lineStart + worldDir * rayLength;
+
+            spline.FindNearestPointToLine(lineStart, lineEnd, out Vector3 pointOnLine, out float normalizedT);
+
+            float pathDist = spline.evenlySpacedPoints.GetPercentageAtNormalizedT(normalizedT)
+                             * spline.evenlySpacedPoints.splineLength;
+
+            result.Add(new CellDistEntry { Cell = cell, PathDist = pathDist });
+        }
+
+        result.Sort((a, b) => a.PathDist.CompareTo(b.PathDist));
+        return result;
     }
 
     private void OnDrawGizmos()
