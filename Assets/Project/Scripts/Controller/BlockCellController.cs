@@ -89,9 +89,9 @@ public class BlockCellController : MonoBehaviour
 
             float angleZ = cell.SpawnerDirectionAngleZ;
 
-            Debug.Log($"[Init Cell Dist] Cell: {cell.name} " +
+            /*Debug.Log($"[Init Cell Dist] Cell: {cell.name} " +
                 $"| Pos: {cell.transform.position} | AngleZ: {angleZ:F1} | Dir: {worldDir} " +
-                $"| NormalizedT: {normalizedT:F3} | PathDist: {pathDist:F2}");
+                $"| NormalizedT: {normalizedT:F3} | PathDist: {pathDist:F2}");*/
         }
 
         // Sắp xếp các cell theo thứ tự tăng dần của khoảng cách để Hole duyệt qua đúng trình tự di chuyển

@@ -2,6 +2,7 @@ using BezierSolution;
 using Common.Helper;
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Hole : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public class Hole : MonoBehaviour
     private Spot _CurSpot;
 
     private int NextAccessibleCellIdx = 0;
+
+    private int _flyingBlocksCount = 0;
+    private bool _shouldDeactivateAfterFly = false;
 
     public Renderer _rendererHole;
 
@@ -84,12 +88,59 @@ public class Hole : MonoBehaviour
         if (targetCell == null) 
             return;
 
-        //Debug.Log($"[Check Distance] Hole Dist: {curTravelDist:F2} " +
-            //$"| Cell Dist: {targetCell.GetPathDistForCollect():F2} | Match: {curTravelDist >= targetCell.GetPathDistForCollect()}");
-
         if (curTravelDist >= targetCell.GetPathDistForCollect())
         {
-            Debug.Log($"[Match Triggered] Hole reached Cell {NextAccessibleCellIdx} at distance {targetCell.GetPathDistForCollect():F2}");
+            
+            if (targetCell.CurBlocks != null && targetCell.CurBlocks.Count > 0)
+            {
+                Block topBlock = targetCell.CurBlocks[0];
+                if (topBlock != null && this._ColorID == topBlock.ColorID)
+                {
+                    List<Block> blocksToRemove = new List<Block>();
+                    for (int i = 0; i < targetCell.CurBlocks.Count; i++)
+                    {
+                        Block block = targetCell.CurBlocks[i];
+                        if (block == null) continue;
+
+                        if (block.ColorID == this._ColorID)
+                        {
+                            _flyingBlocksCount++;
+                            block.MoveAlongCurve(this.transform, () =>
+                            {
+                                _flyingBlocksCount--;
+                                if (_shouldDeactivateAfterFly && _flyingBlocksCount <= 0)
+                                {
+                                    this.gameObject.SetActive(false);
+                                }
+                            });
+
+                            blocksToRemove.Add(block);
+                            Debug.Log($"[Block Collected] Block {i} (ColorID: {block.ColorID}) flying to hole and marked for removal.");
+                            
+                            _holeCapacity--;
+                            if (_holeCapacity <= 0)
+                            {
+                                Debug.Log("[Hole Capacity Empty] Hole capacity reached 0, deactivating hole after fly completes.");
+                                _shouldDeactivateAfterFly = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log($"[Stop Collect] Block {i} has different ColorID ({block.ColorID}), stopping.");
+                            break;
+                        }
+                    }
+
+                    foreach (var block in blocksToRemove)
+                    {
+                        targetCell.CurBlocks.Remove(block);
+                    }
+
+                    targetCell.ShiftBlocksForward();
+                }
+            }
+            
             NextAccessibleCellIdx++;
         }
     }
@@ -119,6 +170,8 @@ public class Hole : MonoBehaviour
             walker.enabled = true;
             _holdState = HoldState.OnBezier;
             NextAccessibleCellIdx = 0;
+            _flyingBlocksCount = 0;
+            _shouldDeactivateAfterFly = false;
 
             if (walker.Spline != null && BlockCellController.Instance != null)
             {
@@ -171,6 +224,7 @@ public class Hole : MonoBehaviour
         else
         {
             Debug.LogWarning("No empty spot found for Hole!", this);
+            //Check lose
         }
     }
 

@@ -467,7 +467,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462004639051808251, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: _holeCapacity
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6226752382571765546, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: m_LocalPosition.x
@@ -700,7 +700,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.size
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].StackCt
@@ -715,16 +715,32 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[3].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[4].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].BlockCol
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[1].BlockCol
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[2].BlockCol
-      value: 1
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[3].BlockCol
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[4].BlockCol
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -966,7 +982,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.size
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].StackCt
@@ -981,16 +997,32 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[3].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[4].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].BlockCol
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[1].BlockCol
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[2].BlockCol
-      value: 2
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[3].BlockCol
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[4].BlockCol
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1338,7 +1370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462004639051808251, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: _holeCapacity
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6226752382571765546, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1754,58 +1786,6 @@ PrefabInstance:
     - target: {fileID: 1959232576958698525, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
       propertyPath: m_Name
       value: InGameUI
-      objectReference: {fileID: 0}
-    - target: {fileID: 4002545251995060544, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4002545251995060544, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4002545251995060544, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 780
-      objectReference: {fileID: 0}
-    - target: {fileID: 4002545251995060544, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -50
-      objectReference: {fileID: 0}
-    - target: {fileID: 5112834664870583501, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448985250441233627, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448985250441233627, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448985250441233627, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 540
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448985250441233627, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -50
-      objectReference: {fileID: 0}
-    - target: {fileID: 8547570323072573750, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8547570323072573750, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8547570323072573750, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 300
-      objectReference: {fileID: 0}
-    - target: {fileID: 8547570323072573750, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -50
       objectReference: {fileID: 0}
     - target: {fileID: 8959323681153442248, guid: 3cac087a23156654ab16ae87026b900d, type: 3}
       propertyPath: m_Pivot.x
@@ -2340,7 +2320,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].StackCt
@@ -2355,16 +2335,24 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[3].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].BlockCol
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[1].BlockCol
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[2].BlockCol
-      value: 3
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[3].BlockCol
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2567,7 +2555,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462004639051808251, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: _holeCapacity
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6226752382571765546, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: m_LocalPosition.x
