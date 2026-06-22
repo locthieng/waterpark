@@ -2517,58 +2517,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 883511316}
     m_Modifications:
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_normal.x
-      value: 0.14931001
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_normal.y
-      value: 0.9885543
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_normal.z
-      value: -0.021606792
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_position.x
-      value: 7.7052
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_position.y
-      value: 6.7978873
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_followingControlPointPosition.x
-      value: 9.269356
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_followingControlPointPosition.y
-      value: 6.5550346
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_precedingControlPointPosition.x
-      value: 6.141044
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_precedingControlPointPosition.y
-      value: 7.04074
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_followingControlPointLocalPosition.x
-      value: 0.7820778
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_followingControlPointLocalPosition.z
-      value: -0.12142515
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_precedingControlPointLocalPosition.x
-      value: -0.78207827
-      objectReference: {fileID: 0}
-    - target: {fileID: 1436255277400991960, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_precedingControlPointLocalPosition.z
-      value: 0.121427536
-      objectReference: {fileID: 0}
     - target: {fileID: 1780444803424157683, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -2616,18 +2564,6 @@ PrefabInstance:
     - target: {fileID: 2780483637507842847, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3252016884544292194, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 4.8126
-      objectReference: {fileID: 0}
-    - target: {fileID: 3252016884544292194, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 3.8689432
-      objectReference: {fileID: 0}
-    - target: {fileID: 7856261149035861999, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
-      propertyPath: AllHoles.Array.size
-      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7856261149035861999, guid: b7e10121383f8e44ba3799193a4ba053, type: 3}
       propertyPath: 'AllHoles.Array.data[0]'
