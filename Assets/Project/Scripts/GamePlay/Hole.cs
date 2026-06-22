@@ -58,7 +58,6 @@ public class Hole : MonoBehaviour
                 walkerTime.onPathCompleted.AddListener(OnMovementCompleted);
             }
 
-            // Tự động tính khoảng cách các cell dựa trên Spline của Hole tại Start
             if (walker.Spline != null && BlockCellController.Instance != null)
             {
                 BlockCellController.Instance.InitializeCellDistances(walker.Spline);

@@ -467,7 +467,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462004639051808251, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: _holeCapacity
-      value: 10
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6226752382571765546, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: m_LocalPosition.x
@@ -700,7 +700,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.size
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].StackCt
@@ -723,6 +723,14 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[5].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[6].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].BlockCol
       value: 1
       objectReference: {fileID: 0}
@@ -740,6 +748,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[4].BlockCol
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[5].BlockCol
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[6].BlockCol
       value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -982,7 +998,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.size
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].StackCt
@@ -1005,6 +1021,14 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[5].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[6].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].BlockCol
       value: 2
       objectReference: {fileID: 0}
@@ -1022,6 +1046,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[4].BlockCol
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[5].BlockCol
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[6].BlockCol
       value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1370,7 +1402,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462004639051808251, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: _holeCapacity
-      value: 10
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6226752382571765546, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2320,7 +2352,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.size
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].StackCt
@@ -2339,6 +2371,14 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[4].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[5].StackCt
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[0].BlockCol
       value: 3
       objectReference: {fileID: 0}
@@ -2352,6 +2392,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
       propertyPath: PendingBlockDatas.Array.data[3].BlockCol
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[4].BlockCol
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114884547391421755, guid: 00c62a2304039704d9d9962cdc986d6b, type: 3}
+      propertyPath: PendingBlockDatas.Array.data[5].BlockCol
       value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -2555,7 +2603,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462004639051808251, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: _holeCapacity
-      value: 10
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6226752382571765546, guid: 4ef5bd0429fbb3547a03aabe661f3682, type: 3}
       propertyPath: m_LocalPosition.x
