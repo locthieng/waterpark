@@ -1,8 +1,6 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 using System.IO;
 using BezierSolution;
 
@@ -24,7 +22,6 @@ public class LevelEditorWindow : EditorWindow
 
     // Quản lý Bezier Spline
     private SplineMeshBuilder _activeSplineBuilder;
-    private SerializedObject _serializedSplineBuilder;
 
     private BrushType _currentBrush = BrushType.Select;
     private int _selectedColorId = 0;
@@ -33,15 +30,25 @@ public class LevelEditorWindow : EditorWindow
     private enum TabType { Block, Map, Pipe, Hole, Spline }
     private TabType _currentTab = TabType.Block;
 
-    private VisualElement _root;
-    private VisualElement _warningContainer;
-    private VisualElement _mainEditorContainer;
+    // Scroll positions for IMGUI
+    private Vector2 leftScrollPosition = Vector2.zero;
+    private Vector2 rightScrollPosition = Vector2.zero;
+    private Vector2 splinePointsScrollPos = Vector2.zero;
+
+    // Map/Grid temporary settings
+    private int mapWidth = 7;
+    private int mapHeight = 9;
+    private float cellSize = 1f;
+
+    // Pipe/Hole settings
+    private int pipeStrength = 1;
+    private int holeCapacity = 3;
 
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
     {
         var window = GetWindow<LevelEditorWindow>("Level Editor");
-        window.minSize = new Vector2(350, 150);
+        window.minSize = new Vector2(650, 400);
     }
 
     private void OnEnable()
@@ -52,6 +59,8 @@ public class LevelEditorWindow : EditorWindow
         levelController = Object.FindFirstObjectByType<LevelController>();
         if (levelController != null)
             inputLevel = levelController.CurrentLevel < 1 ? 1 : levelController.CurrentLevel;
+
+        UpdateUIState();
     }
 
     private void OnDisable()
@@ -70,76 +79,14 @@ public class LevelEditorWindow : EditorWindow
 
     private void OnInspectorUpdate()
     {
-        // Cập nhật danh sách điểm tọa độ spline liên tục nếu đang mở Tab Spline
-        if (_currentTab == TabType.Spline && _activeSplineBuilder != null)
-        {
-            RefreshSplinePointsList();
-        }
-    }
-
-    public void CreateGUI()
-    {
-        _root = rootVisualElement;
-
-        // Tải các tài nguyên UXML và USS
-        var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Project/Scripts/Editor/LevelEditorWindow.uxml");
-        var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Project/Scripts/Editor/LevelEditorWindow.uss");
-
-        if (uxml != null)
-        {
-            var clone = uxml.CloneTree();
-            clone.style.flexGrow = 1;
-            _root.Add(clone);
-        }
-        if (uss != null) _root.styleSheets.Add(uss);
-
-        _warningContainer = _root.Q<VisualElement>("warning-container");
-        _mainEditorContainer = _root.Q<VisualElement>("main-editor-container");
-
-        // Thiết lập nút cảnh báo
-        var btnOpenScene = _root.Q<Button>("btn-open-scene");
-        if (btnOpenScene != null)
-        {
-            btnOpenScene.clicked += OpenGameScene;
-        }
-
-        // Thiết lập các bộ điều khiển Toolbar
-        SetupToolbar();
-
-        // Thiết lập bộ chọn cọ vẽ
-        SetupBrushSelector();
-
-        // Thiết lập bảng màu động từ GameDataBase
-        SetupColorPalette();
-
-        // Thiết lập bảng điều khiển Bezier Spline
-        SetupSplinePanel();
-
-        // Thiết lập thanh Tab chuyển đổi danh mục
-        SetupTabs();
-
-        // Đồng bộ trạng thái ban đầu của UI
-        UpdateUIState();
+        // Force repaint to make UI responsive
+        Repaint();
     }
 
     private void UpdateUIState()
     {
-        if (levelController == null)
+        if (levelController != null)
         {
-            if (_warningContainer != null) _warningContainer.style.display = DisplayStyle.Flex;
-            if (_mainEditorContainer != null) _mainEditorContainer.style.display = DisplayStyle.None;
-        }
-        else
-        {
-            if (_warningContainer != null) _warningContainer.style.display = DisplayStyle.None;
-            if (_mainEditorContainer != null) _mainEditorContainer.style.display = DisplayStyle.Flex;
-
-            var levelInput = _root.Q<IntegerField>("level-input");
-            if (levelInput != null && levelInput.value != levelController.CurrentLevel)
-            {
-                levelInput.value = levelController.CurrentLevel;
-            }
-
             RefreshActiveLevelData();
             
             // Tự động tìm Spline Builder trong Scene nếu chưa được gán
@@ -147,6 +94,11 @@ public class LevelEditorWindow : EditorWindow
             {
                 AutoFindSplineBuilder();
             }
+        }
+        else
+        {
+            _activeLevelData = null;
+            _serializedLevelData = null;
         }
     }
 
@@ -166,534 +118,467 @@ public class LevelEditorWindow : EditorWindow
         }
     }
 
-    private void SetupToolbar()
+    private void OnGUI()
     {
-        var levelInput = _root.Q<IntegerField>("level-input");
-        if (levelInput != null)
+        // Custom style definitions
+        GUIStyle titleStyle = new GUIStyle(EditorStyles.boldLabel)
         {
-            levelInput.value = inputLevel;
-            levelInput.RegisterValueChangedCallback(evt =>
-            {
-                inputLevel = evt.newValue;
-                if (inputLevel < 1) inputLevel = 1;
-            });
-        }
+            fontSize = 14,
+            alignment = TextAnchor.MiddleLeft
+        };
+        titleStyle.normal.textColor = new Color(0.35f, 0.65f, 0.9f);
 
-        var btnLoad = _root.Q<Button>("btn-load");
-        if (btnLoad != null)
+        GUIStyle sectionTitleStyle = new GUIStyle(EditorStyles.boldLabel)
         {
-            btnLoad.clicked += () =>
+            fontSize = 12,
+            margin = new RectOffset(0, 0, 10, 5)
+        };
+        sectionTitleStyle.normal.textColor = new Color(0.35f, 0.65f, 0.9f);
+
+        if (levelController == null)
+        {
+            // WARNING CONTAINER
+            EditorGUILayout.BeginVertical(new GUIStyle { padding = new RectOffset(30, 30, 30, 30) });
+            GUILayout.FlexibleSpace();
+            
+            var warningStyle = new GUIStyle(EditorStyles.boldLabel)
             {
-                if (levelController != null)
-                {
-                    levelController.CurrentLevel = inputLevel;
-                    levelController.EditorLoadLevel(inputLevel);
-                    UpdateUIState();
-                    MarkDirty();
-                }
+                fontSize = 15,
+                alignment = TextAnchor.MiddleCenter
             };
-        }
-
-        var btnPrev = _root.Q<Button>("btn-prev");
-        if (btnPrev != null)
-        {
-            btnPrev.clicked += () =>
+            warningStyle.normal.textColor = new Color(1f, 0.7f, 0.3f);
+            
+            GUILayout.Label("⚠️ LevelController not found in the current Scene.", warningStyle);
+            GUILayout.Space(15);
+            
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Open Game Scene", GUILayout.Height(34), GUILayout.Width(200)))
             {
-                if (levelController != null)
-                {
-                    levelController.CurrentLevel = inputLevel;
-                    levelController.EditorLoadPrevLevel();
-                    inputLevel = levelController.CurrentLevel;
-                    UpdateUIState();
-                    MarkDirty();
-                }
-            };
-        }
-
-        var btnNext = _root.Q<Button>("btn-next");
-        if (btnNext != null)
-        {
-            btnNext.clicked += () =>
-            {
-                if (levelController != null)
-                {
-                    levelController.CurrentLevel = inputLevel;
-                    levelController.EditorLoadNextLevel();
-                    inputLevel = levelController.CurrentLevel;
-                    UpdateUIState();
-                    MarkDirty();
-                }
-            };
-        }
-
-        var btnClone = _root.Q<Button>("btn-clone");
-        if (btnClone != null)
-        {
-            btnClone.clicked += () =>
-            {
-                if (levelController != null)
-                {
-                    levelController.EditorCloneLevel(levelController.CurrentLevel);
-                    inputLevel = levelController.CurrentLevel;
-                    UpdateUIState();
-                    MarkDirty();
-                }
-            };
-        }
-
-        var btnSave = _root.Q<Button>("btn-save");
-        if (btnSave != null)
-        {
-            btnSave.clicked += () =>
-            {
-                if (levelController != null)
-                {
-                    if (_activeLevelData != null)
-                    {
-                        _activeLevelData.levelIndex = levelController.CurrentLevel;
-                        
-                        // Lưu tọa độ spline points vào LevelData
-                        SaveSplinePointsToLevelData();
-
-                        EditorUtility.SetDirty(_activeLevelData);
-                    }
-                    levelController.EditorSaveLevel();
-                    UpdateUIState();
-                    MarkDirty();
-                }
-            };
-        }
-
-        var btnAdd = _root.Q<Button>("btn-add");
-        if (btnAdd != null)
-        {
-            btnAdd.clicked += () =>
-            {
-                if (levelController != null)
-                {
-                    levelController.EditorAddLevel();
-                    inputLevel = levelController.CurrentLevel;
-                    UpdateUIState();
-                    MarkDirty();
-                }
-            };
-        }
-    }
-
-    private void SetupBrushSelector()
-    {
-        var btnSelect = _root.Q<Button>("brush-select");
-        var btnPaintBlock = _root.Q<Button>("brush-paint-block");
-        var btnPaintObstacle = _root.Q<Button>("brush-paint-obstacle");
-        var btnPaintHole = _root.Q<Button>("brush-paint-hole");
-
-        if (btnSelect != null) btnSelect.clicked += () => SelectBrush(btnSelect, BrushType.Select);
-        if (btnPaintBlock != null) btnPaintBlock.clicked += () => SelectBrush(btnPaintBlock, BrushType.PaintBlock);
-        if (btnPaintObstacle != null) btnPaintObstacle.clicked += () => SelectBrush(btnPaintObstacle, BrushType.PaintObstacle);
-        if (btnPaintHole != null) btnPaintHole.clicked += () => SelectBrush(btnPaintHole, BrushType.PaintHole);
-    }
-
-    private void SelectBrush(Button selectedButton, BrushType brushType)
-    {
-        _currentBrush = brushType;
-
-        var brushContainer = _root.Q<VisualElement>("brush-container");
-        if (brushContainer != null)
-        {
-            brushContainer.Query<Button>(className: "btn-brush").ForEach(btn =>
-            {
-                btn.RemoveFromClassList("btn-brush-active");
-            });
-        }
-
-        if (selectedButton != null)
-        {
-            selectedButton.AddToClassList("btn-brush-active");
-        }
-
-    }
-
-    private void SetupColorPalette()
-    {
-        var paletteContainer = _root.Q<VisualElement>("color-palette-container");
-        if (paletteContainer == null) return;
-
-        paletteContainer.Clear();
-
-        GameDataBase db = Resources.Load<GameDataBase>("Database/GameDataBase");
-        if (db == null || db.Colors == null || db.Colors.Count == 0)
-        {
-            var fallbackLabel = new Label("Không tìm thấy GameDataBase hoặc mảng màu trống.") { style = { fontSize = 10, color = Color.gray } };
-            paletteContainer.Add(fallbackLabel);
+                OpenGameScene();
+            }
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+            
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndVertical();
             return;
         }
 
-        for (int i = 0; i < db.Colors.Count; i++)
-        {
-            int colorId = i;
-            var colorBtn = new VisualElement();
-            colorBtn.AddToClassList("color-palette-item");
-            colorBtn.style.backgroundColor = db.Colors[colorId];
+        // TOP TOOLBAR
+        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Height(30));
+        
+        GUILayout.Label("Level:", EditorStyles.miniLabel, GUILayout.Width(40));
+        inputLevel = EditorGUILayout.IntField(inputLevel, GUILayout.Width(45));
+        if (inputLevel < 1) inputLevel = 1;
 
-            if (colorId == _selectedColorId)
+        if (GUILayout.Button("LOAD", EditorStyles.toolbarButton, GUILayout.Width(50)))
+        {
+            levelController.CurrentLevel = inputLevel;
+            levelController.EditorLoadLevel(inputLevel);
+            UpdateUIState();
+            MarkDirty();
+        }
+
+        if (GUILayout.Button("◀◀ Prev", EditorStyles.toolbarButton, GUILayout.Width(65)))
+        {
+            levelController.EditorLoadPrevLevel();
+            inputLevel = levelController.CurrentLevel;
+            UpdateUIState();
+            MarkDirty();
+        }
+
+        if (GUILayout.Button("Next ▶▶", EditorStyles.toolbarButton, GUILayout.Width(65)))
+        {
+            levelController.EditorLoadNextLevel();
+            inputLevel = levelController.CurrentLevel;
+            UpdateUIState();
+            MarkDirty();
+        }
+
+        if (GUILayout.Button("CLONE", EditorStyles.toolbarButton, GUILayout.Width(55)))
+        {
+            levelController.EditorCloneLevel(levelController.CurrentLevel);
+            inputLevel = levelController.CurrentLevel;
+            UpdateUIState();
+            MarkDirty();
+        }
+
+        GUILayout.Space(10);
+
+        Color originalBg = GUI.backgroundColor;
+        
+        // Save Button (Green)
+        GUI.backgroundColor = new Color(0.2f, 0.6f, 0.2f);
+        if (GUILayout.Button("💾 SAVE LEVEL", EditorStyles.toolbarButton, GUILayout.Width(100)))
+        {
+            if (_activeLevelData != null)
             {
-                colorBtn.AddToClassList("color-palette-item-selected");
+                _activeLevelData.levelIndex = levelController.CurrentLevel;
+                SaveSplinePointsToLevelData();
+                EditorUtility.SetDirty(_activeLevelData);
             }
+            levelController.EditorSaveLevel();
+            UpdateUIState();
+            MarkDirty();
+        }
 
-            colorBtn.RegisterCallback<ClickEvent>(evt =>
-            {
-                _selectedColorId = colorId;
+        // Add Button (Blue)
+        GUI.backgroundColor = new Color(0.1f, 0.4f, 0.8f);
+        if (GUILayout.Button("+ ADD NEW", EditorStyles.toolbarButton, GUILayout.Width(80)))
+        {
+            levelController.EditorAddLevel();
+            inputLevel = levelController.CurrentLevel;
+            UpdateUIState();
+            MarkDirty();
+        }
+        
+        GUI.backgroundColor = originalBg;
+        
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
 
-                paletteContainer.Query<VisualElement>(className: "color-palette-item").ForEach(item =>
+        // MAIN LAYOUT (Two-column layout using EditorGUILayout)
+        EditorGUILayout.BeginHorizontal();
+
+        // PANE 1: LEFT SIDEBAR (Width 325)
+        EditorGUILayout.BeginVertical("box", GUILayout.Width(325), GUILayout.ExpandHeight(true));
+        leftScrollPosition = EditorGUILayout.BeginScrollView(leftScrollPosition);
+
+        // BRUSH SELECTOR
+        GUILayout.Label("CỌ VẼ (BRUSHES)", sectionTitleStyle);
+        
+        string[] brushNames = { "Select", "Paint Block", "Paint Obstacle", "Paint Hole" };
+        BrushType[] brushTypes = { BrushType.Select, BrushType.PaintBlock, BrushType.PaintObstacle, BrushType.PaintHole };
+        int selectedBrushIdx = System.Array.IndexOf(brushTypes, _currentBrush);
+        if (selectedBrushIdx < 0) selectedBrushIdx = 0;
+        
+        int newBrushIdx = GUILayout.Toolbar(selectedBrushIdx, brushNames);
+        if (newBrushIdx != selectedBrushIdx)
+        {
+            _currentBrush = brushTypes[newBrushIdx];
+        }
+
+        GUILayout.Space(10);
+        
+        // CATEGORY TABS
+        string[] tabNames = { "Block", "Map", "Pipe", "Hole", "Spline" };
+        _currentTab = (TabType)GUILayout.Toolbar((int)_currentTab, tabNames);
+        
+        GUILayout.Space(10);
+        GUILayout.Box("", GUILayout.Height(1), GUILayout.ExpandWidth(true)); // Horizontal line separator
+        GUILayout.Space(5);
+
+        // TAB PANELS
+        switch (_currentTab)
+        {
+            case TabType.Block:
+                GUILayout.Label("BẢNG MÀU BLOCK", sectionTitleStyle);
+                DrawColorPalette();
+                break;
+
+            case TabType.Map:
+                GUILayout.Label("BÀN CỜ (MAP)", sectionTitleStyle);
+                mapWidth = EditorGUILayout.IntField("Cột (Width)", mapWidth);
+                mapHeight = EditorGUILayout.IntField("Dòng (Height)", mapHeight);
+                cellSize = EditorGUILayout.FloatField("Kích thước ô", cellSize);
+                GUILayout.Space(10);
+                if (GUILayout.Button("⚡ Khởi Tạo Lưới Trống", GUILayout.Height(30)))
                 {
-                    item.RemoveFromClassList("color-palette-item-selected");
-                });
-
-                colorBtn.AddToClassList("color-palette-item-selected");
-            });
-
-            paletteContainer.Add(colorBtn);
-        }
-    }
-
-    // ==========================================
-    // LOGIC CHUYỂN TABS BÊN TRÁI
-    // ==========================================
-
-    private void SetupTabs()
-    {
-        var tabBlock = _root.Q<Button>("tab-block");
-        var tabMap = _root.Q<Button>("tab-map");
-        var tabPipe = _root.Q<Button>("tab-pipe");
-        var tabHole = _root.Q<Button>("tab-hole");
-        var tabSpline = _root.Q<Button>("tab-spline");
-
-        if (tabBlock != null) tabBlock.clicked += () => SwitchTab(TabType.Block, tabBlock);
-        if (tabMap != null) tabMap.clicked += () => SwitchTab(TabType.Map, tabMap);
-        if (tabPipe != null) tabPipe.clicked += () => SwitchTab(TabType.Pipe, tabPipe);
-        if (tabHole != null) tabHole.clicked += () => SwitchTab(TabType.Hole, tabHole);
-        if (tabSpline != null) tabSpline.clicked += () => SwitchTab(TabType.Spline, tabSpline);
-
-        // Khởi tạo tab mặc định
-        SwitchTab(TabType.Block, tabBlock);
-    }
-
-    private void SwitchTab(TabType tab, Button clickedButton)
-    {
-        _currentTab = tab;
-
-        // Clear active class from all tabs
-        var tabContainer = _root.Q<VisualElement>("category-tabs");
-        if (tabContainer != null)
-        {
-            tabContainer.Query<Button>(className: "tab-button").ForEach(btn =>
-            {
-                btn.RemoveFromClassList("tab-button-active");
-            });
-        }
-
-        if (clickedButton != null)
-        {
-            clickedButton.AddToClassList("tab-button-active");
-        }
-
-        // Ẩn/Hiện các panel nội dung tương ứng
-        var panelBlock = _root.Q<VisualElement>("panel-tab-block");
-        var panelMap = _root.Q<VisualElement>("panel-tab-map");
-        var panelPipe = _root.Q<VisualElement>("panel-tab-pipe");
-        var panelHole = _root.Q<VisualElement>("panel-tab-hole");
-        var panelSpline = _root.Q<VisualElement>("panel-tab-spline");
-
-        if (panelBlock != null) panelBlock.style.display = tab == TabType.Block ? DisplayStyle.Flex : DisplayStyle.None;
-        if (panelMap != null) panelMap.style.display = tab == TabType.Map ? DisplayStyle.Flex : DisplayStyle.None;
-        if (panelPipe != null) panelPipe.style.display = tab == TabType.Pipe ? DisplayStyle.Flex : DisplayStyle.None;
-        if (panelHole != null) panelHole.style.display = tab == TabType.Hole ? DisplayStyle.Flex : DisplayStyle.None;
-        if (panelSpline != null) panelSpline.style.display = tab == TabType.Spline ? DisplayStyle.Flex : DisplayStyle.None;
-
-    }
-
-    // ==========================================
-    // LOGIC ĐIỀU KHIỂN BEZIER SPLINE & MESH
-    // ==========================================
-
-    private void SetupSplinePanel()
-    {
-        var btnFindSpline = _root.Q<Button>("btn-find-spline");
-        if (btnFindSpline != null)
-        {
-            btnFindSpline.clicked += AutoFindSplineBuilder;
-        }
-
-        var splineBuilderField = _root.Q<ObjectField>("spline-builder-field");
-        if (splineBuilderField != null)
-        {
-            splineBuilderField.RegisterValueChangedCallback(evt =>
-            {
-                SelectSplineBuilder((SplineMeshBuilder)evt.newValue);
-            });
-        }
-
-        var btnAddPoint = _root.Q<Button>("btn-spline-add-point");
-        if (btnAddPoint != null)
-        {
-            btnAddPoint.clicked += () =>
-            {
-                if (_activeSplineBuilder != null && _activeSplineBuilder.spline != null)
-                {
-                    var spline = _activeSplineBuilder.spline;
-                    Undo.RegisterCompleteObjectUndo(spline, "Add Spline Point");
-                    
-                    int count = spline.Count;
-                    if (count > 0)
-                    {
-                        spline.DuplicatePointAt(count - 1);
-                    }
-                    else
-                    {
-                        spline.InsertNewPointAt(0);
-                    }
-                    
-                    _activeSplineBuilder.GenerateMesh();
-                    RefreshSplinePointsList();
-                    SaveSplinePointsToLevelData();
-                    Debug.Log("Đã thêm điểm spline mới (Duplicate điểm cuối).");
+                    Debug.Log($"Khởi tạo lưới trống {mapWidth}x{mapHeight} với kích thước {cellSize} (Tính năng đang phát triển)");
                 }
-            };
-        }
+                break;
 
-        var btnRemovePoint = _root.Q<Button>("btn-spline-remove-point");
-        if (btnRemovePoint != null)
-        {
-            btnRemovePoint.clicked += () =>
-            {
-                if (_activeSplineBuilder != null && _activeSplineBuilder.spline != null)
+            case TabType.Pipe:
+                GUILayout.Label("ỐNG THẢ (PIPES)", sectionTitleStyle);
+                if (GUILayout.Button("Paint Pipe Brush", _currentBrush == BrushType.Linker ? GetActiveButtonStyle() : GUI.skin.button))
                 {
-                    var spline = _activeSplineBuilder.spline;
-                    if (spline.Count > 2)
-                    {
-                        Undo.RegisterCompleteObjectUndo(spline, "Remove Spline Point");
-                        
-                        var lastPoint = spline[spline.Count - 1];
-                        if (lastPoint != null)
-                        {
-                            Undo.DestroyObjectImmediate(lastPoint.gameObject);
-                        }
-                        
-                        _activeSplineBuilder.GenerateMesh();
-                        RefreshSplinePointsList();
-                        SaveSplinePointsToLevelData();
-                        Debug.Log("Đã xóa điểm cuối cùng của spline.");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Không thể xóa: Spline phải chứa ít nhất 2 điểm!");
-                    }
+                    _currentBrush = BrushType.Linker;
                 }
-            };
-        }
+                GUILayout.Space(5);
+                pipeStrength = EditorGUILayout.IntField("Độ Bền (Pipe Strength)", pipeStrength);
+                break;
 
-        var btnGenerate = _root.Q<Button>("btn-generate-mesh");
-        if (btnGenerate != null)
-        {
-            btnGenerate.clicked += () =>
-            {
+            case TabType.Hole:
+                GUILayout.Label("HỐ THU THẬP (HOLES)", sectionTitleStyle);
+                if (GUILayout.Button("Paint Hole Brush", _currentBrush == BrushType.PaintHole ? GetActiveButtonStyle() : GUI.skin.button))
+                {
+                    _currentBrush = BrushType.PaintHole;
+                }
+                GUILayout.Space(5);
+                holeCapacity = EditorGUILayout.IntField("Sức Chứa Hố", holeCapacity);
+                break;
+
+            case TabType.Spline:
+                GUILayout.Label("ĐƯỜNG ĐI (BEZIER SPLINE)", sectionTitleStyle);
+                
+                if (GUILayout.Button("🔍 Auto Find Spline", GUILayout.Height(26)))
+                {
+                    AutoFindSplineBuilder();
+                }
+                GUILayout.Space(5);
+
+                _activeSplineBuilder = (SplineMeshBuilder)EditorGUILayout.ObjectField("Spline Builder", _activeSplineBuilder, typeof(SplineMeshBuilder), true);
+                
                 if (_activeSplineBuilder != null)
                 {
-                    Undo.RecordObject(_activeSplineBuilder, "Generate Spline Mesh");
-                    _activeSplineBuilder.GenerateMesh();
-
-                    MeshFilter filter = _activeSplineBuilder.GetComponent<MeshFilter>();
-                    if (filter != null && filter.sharedMesh != null)
+                    GUILayout.Space(8);
+                    GUILayout.Label("Cấu Hình Điểm Spline:", EditorStyles.boldLabel);
+                    
+                    EditorGUILayout.BeginHorizontal();
+                    if (GUILayout.Button("➕ Add Point", GUILayout.Height(24)))
                     {
-                        if (_activeLevelData != null)
+                        if (_activeSplineBuilder.spline != null)
                         {
-                            Undo.RecordObject(_activeLevelData, "Save Spline Mesh to LevelData");
-                            _activeLevelData._meshBezierSpline = filter.sharedMesh;
+                            var spline = _activeSplineBuilder.spline;
+                            Undo.RegisterCompleteObjectUndo(spline, "Add Spline Point");
                             
-                            // Lưu đồng thời thông số spline points và loop
+                            int count = spline.Count;
+                            if (count > 0)
+                            {
+                                spline.DuplicatePointAt(count - 1);
+                            }
+                            else
+                            {
+                                spline.InsertNewPointAt(0);
+                            }
+                            
+                            _activeSplineBuilder.GenerateMesh();
                             SaveSplinePointsToLevelData();
-
-                            EditorUtility.SetDirty(_activeLevelData);
-                            AssetDatabase.SaveAssets();
-                            Debug.Log($"Đã tạo và gán mesh spline thành công vào {_activeLevelData.name}!");
-                        }
-                        else
-                        {
-                            Debug.LogWarning("Không tìm thấy file LevelData để gán mesh!");
+                            Debug.Log("Đã thêm điểm spline mới (Duplicate điểm cuối).");
                         }
                     }
+                    if (GUILayout.Button("➖ Remove Last", GUILayout.Height(24)))
+                    {
+                        if (_activeSplineBuilder.spline != null)
+                        {
+                            var spline = _activeSplineBuilder.spline;
+                            if (spline.Count > 2)
+                            {
+                                Undo.RegisterCompleteObjectUndo(spline, "Remove Spline Point");
+                                
+                                var lastPoint = spline[spline.Count - 1];
+                                if (lastPoint != null)
+                                {
+                                    Undo.DestroyObjectImmediate(lastPoint.gameObject);
+                                }
+                                
+                                _activeSplineBuilder.GenerateMesh();
+                                SaveSplinePointsToLevelData();
+                                Debug.Log("Đã xóa điểm cuối cùng của spline.");
+                            }
+                            else
+                            {
+                                Debug.LogWarning("Không thể xóa: Spline phải chứa ít nhất 2 điểm!");
+                            }
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    // Loop Toggle
+                    if (_activeSplineBuilder.spline != null)
+                    {
+                        var spline = _activeSplineBuilder.spline;
+                        bool prevLoop = spline.loop;
+                        bool newLoop = EditorGUILayout.Toggle("Đóng Vòng (Loop)", prevLoop);
+                        if (newLoop != prevLoop)
+                        {
+                            Undo.RecordObject(spline, "Toggle Spline Loop");
+                            spline.loop = newLoop;
+                            _activeSplineBuilder.GenerateMesh();
+                            
+                            if (_activeLevelData != null)
+                            {
+                                Undo.RecordObject(_activeLevelData, "Update Spline Loop in LevelData");
+                                _activeLevelData._isBezierLoop = newLoop;
+                                EditorUtility.SetDirty(_activeLevelData);
+                            }
+                        }
+                    }
+
+                    // Points list
+                    GUILayout.Space(8);
+                    GUILayout.Label("Danh Sách Các Điểm (Points):", EditorStyles.boldLabel);
+                    DrawSplinePointsList();
+
+                    // Mesh settings
+                    GUILayout.Space(8);
+                    GUILayout.Label("Cấu Hình Mesh:", EditorStyles.boldLabel);
+
+                    EditorGUI.BeginChangeCheck();
+                    float newWidth = EditorGUILayout.FloatField("Độ Rộng Mesh", _activeSplineBuilder.width);
+                    int newRes = EditorGUILayout.IntField("Độ Phân Giải (Res)", _activeSplineBuilder.resolution);
+                    float newTiling = EditorGUILayout.FloatField("UV Tiling", _activeSplineBuilder.uvTiling);
+                    bool newNormal = EditorGUILayout.Toggle("Use Spline Normal", _activeSplineBuilder.useSplineNormal);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        Undo.RecordObject(_activeSplineBuilder, "Modify Spline Mesh Properties");
+                        _activeSplineBuilder.width = newWidth;
+                        _activeSplineBuilder.resolution = newRes;
+                        _activeSplineBuilder.uvTiling = newTiling;
+                        _activeSplineBuilder.useSplineNormal = newNormal;
+                        _activeSplineBuilder.GenerateMesh();
+                        EditorUtility.SetDirty(_activeSplineBuilder);
+                    }
+
+                    GUILayout.Space(12);
+                    
+                    GUI.backgroundColor = new Color(0.1f, 0.4f, 0.8f);
+                    if (GUILayout.Button("🔨 Generate & Save Mesh", GUILayout.Height(32)))
+                    {
+                        GenerateAndSaveMesh();
+                    }
+                    GUI.backgroundColor = originalBg;
                 }
-            };
+                break;
         }
-    }
 
-    private void AutoFindSplineBuilder()
-    {
-        var builder = Object.FindFirstObjectByType<SplineMeshBuilder>();
-        var splineBuilderField = _root.Q<ObjectField>("spline-builder-field");
-        if (splineBuilderField != null)
+        EditorGUILayout.EndScrollView();
+        EditorGUILayout.EndVertical();
+
+        // Divider
+        GUILayout.Box("", GUILayout.Width(2), GUILayout.ExpandHeight(true));
+
+        // PANE 2: RIGHT SIDEBAR (Expands to fill remaining window)
+        EditorGUILayout.BeginVertical("box", GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+        rightScrollPosition = EditorGUILayout.BeginScrollView(rightScrollPosition);
+
+        GUILayout.Label("THÔNG TIN LEVEL", sectionTitleStyle);
+        
+        string activeLevelLabel = (_activeLevelData != null) 
+            ? $"Active Level: Level_{levelController.CurrentLevel}" 
+            : $"Active Level: Level_{levelController.CurrentLevel} (Chưa tạo asset)";
+        
+        GUILayout.Label(activeLevelLabel, EditorStyles.wordWrappedLabel);
+        GUILayout.Space(10);
+
+        if (_activeLevelData != null && _serializedLevelData != null)
         {
-            splineBuilderField.value = builder;
-        }
-    }
-
-    private void SelectSplineBuilder(SplineMeshBuilder builder)
-    {
-        _activeSplineBuilder = builder;
-        var settingsContainer = _root.Q<VisualElement>("spline-settings-container");
-        if (settingsContainer == null) return;
-
-        if (_activeSplineBuilder != null)
-        {
-            settingsContainer.style.display = DisplayStyle.Flex;
-            _serializedSplineBuilder = new SerializedObject(_activeSplineBuilder);
-
-            var widthField = _root.Q<FloatField>("field-mesh-width");
-            var resField = _root.Q<IntegerField>("field-mesh-res");
-            var tilingField = _root.Q<FloatField>("field-mesh-tiling");
-            var normalToggle = _root.Q<Toggle>("toggle-mesh-normal");
-            var loopToggle = _root.Q<Toggle>("toggle-spline-loop");
-
-            if (widthField != null)
+            _serializedLevelData.Update();
+            
+            SerializedProperty prop = _serializedLevelData.GetIterator();
+            if (prop.NextVisible(true))
             {
-                widthField.BindProperty(_serializedSplineBuilder.FindProperty("width"));
-                widthField.RegisterValueChangedCallback(evt =>
+                do
                 {
-                    if (_activeSplineBuilder != null)
-                    {
-                        _serializedSplineBuilder.ApplyModifiedProperties();
-                        _activeSplineBuilder.GenerateMesh();
-                    }
-                });
+                    if (prop.name == "m_Script") continue;
+                    EditorGUILayout.PropertyField(prop, true);
+                }
+                while (prop.NextVisible(false));
             }
 
-            if (resField != null)
+            if (_serializedLevelData.ApplyModifiedProperties())
             {
-                resField.BindProperty(_serializedSplineBuilder.FindProperty("resolution"));
-                resField.RegisterValueChangedCallback(evt =>
-                {
-                    if (_activeSplineBuilder != null)
-                    {
-                        _serializedSplineBuilder.ApplyModifiedProperties();
-                        _activeSplineBuilder.GenerateMesh();
-                    }
-                });
+                EditorUtility.SetDirty(_activeLevelData);
             }
-
-            if (tilingField != null)
-            {
-                tilingField.BindProperty(_serializedSplineBuilder.FindProperty("uvTiling"));
-                tilingField.RegisterValueChangedCallback(evt =>
-                {
-                    if (_activeSplineBuilder != null)
-                    {
-                        _serializedSplineBuilder.ApplyModifiedProperties();
-                        _activeSplineBuilder.GenerateMesh();
-                    }
-                });
-            }
-
-            if (normalToggle != null)
-            {
-                normalToggle.BindProperty(_serializedSplineBuilder.FindProperty("useSplineNormal"));
-                normalToggle.RegisterValueChangedCallback(evt =>
-                {
-                    if (_activeSplineBuilder != null)
-                    {
-                        _serializedSplineBuilder.ApplyModifiedProperties();
-                        _activeSplineBuilder.GenerateMesh();
-                    }
-                });
-            }
-
-            if (loopToggle != null && _activeSplineBuilder.spline != null)
-            {
-                var serializedSpline = new SerializedObject(_activeSplineBuilder.spline);
-                loopToggle.BindProperty(serializedSpline.FindProperty("m_loop"));
-                loopToggle.RegisterValueChangedCallback(evt =>
-                {
-                    if (_activeSplineBuilder != null && _activeSplineBuilder.spline != null)
-                    {
-                        serializedSpline.FindProperty("m_loop").boolValue = evt.newValue;
-                        serializedSpline.ApplyModifiedProperties();
-                        _activeSplineBuilder.GenerateMesh();
-                        
-                        // Cập nhật lưu lại loop vào LevelData
-                        if (_activeLevelData != null)
-                        {
-                            Undo.RecordObject(_activeLevelData, "Update Spline Loop in LevelData");
-                            _activeLevelData._isBezierLoop = evt.newValue;
-                            EditorUtility.SetDirty(_activeLevelData);
-                        }
-                    }
-                });
-            }
-
-            RefreshSplinePointsList();
         }
         else
         {
-            settingsContainer.style.display = DisplayStyle.None;
-            _serializedSplineBuilder = null;
+            EditorGUILayout.HelpBox("Không tìm thấy dữ liệu LevelData. Hãy nhấp LOAD hoặc SAVE LEVEL để khởi tạo.", MessageType.Info);
         }
+
+        EditorGUILayout.EndScrollView();
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.EndHorizontal();
     }
 
-    private void RefreshSplinePointsList()
+    private GUIStyle GetActiveButtonStyle()
     {
-        var pointsList = _root.Q<ScrollView>("spline-points-list");
-        if (pointsList == null) return;
+        GUIStyle style = new GUIStyle(GUI.skin.button);
+        style.normal.background = style.active.background;
+        style.normal.textColor = Color.white;
+        style.fontStyle = FontStyle.Bold;
+        return style;
+    }
 
-        pointsList.Clear();
+    private void DrawColorPalette()
+    {
+        GameDataBase db = Resources.Load<GameDataBase>("Database/GameDataBase");
+        if (db == null || db.Colors == null || db.Colors.Count == 0)
+        {
+            GUILayout.Label("Không tìm thấy GameDataBase hoặc mảng màu trống.", EditorStyles.miniLabel);
+            return;
+        }
 
+        int cols = 6;
+        int rows = Mathf.CeilToInt((float)db.Colors.Count / cols);
+        
+        EditorGUILayout.BeginVertical();
+        for (int r = 0; r < rows; r++)
+        {
+            EditorGUILayout.BeginHorizontal();
+            for (int c = 0; c < cols; c++)
+            {
+                int index = r * cols + c;
+                if (index < db.Colors.Count)
+                {
+                    Color color = db.Colors[index];
+                    
+                    var oldBg = GUI.backgroundColor;
+                    GUI.backgroundColor = color;
+                    
+                    string btnTxt = (index == _selectedColorId) ? "●" : "";
+                    GUIStyle btnStyle = new GUIStyle(GUI.skin.button);
+                    btnStyle.normal.textColor = Color.white;
+                    btnStyle.fontStyle = FontStyle.Bold;
+
+                    if (GUILayout.Button(btnTxt, btnStyle, GUILayout.Width(35), GUILayout.Height(35)))
+                    {
+                        _selectedColorId = index;
+                    }
+                    
+                    GUI.backgroundColor = oldBg;
+                }
+                else
+                {
+                    GUILayout.Space(35);
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndVertical();
+    }
+
+    private void DrawSplinePointsList()
+    {
         if (_activeSplineBuilder == null || _activeSplineBuilder.spline == null)
         {
-            var placeholder = new Label("Không tìm thấy Spline.") { style = { fontSize = 10, color = Color.gray } };
-            pointsList.Add(placeholder);
+            GUILayout.Label("Không tìm thấy Spline.", EditorStyles.miniLabel);
             return;
         }
 
         var spline = _activeSplineBuilder.spline;
+        
+        splinePointsScrollPos = EditorGUILayout.BeginScrollView(splinePointsScrollPos, "box", GUILayout.Height(180));
         for (int i = 0; i < spline.Count; i++)
         {
             int index = i;
             var pt = spline[index];
             if (pt == null) continue;
 
-            var item = new VisualElement();
-            item.AddToClassList("spline-point-item");
-
-            // Hiển thị vị trí tọa độ
-            var label = new Label($"P{index}: ({pt.localPosition.x:F2}, {pt.localPosition.y:F2}, {pt.localPosition.z:F2})");
-            label.AddToClassList("spline-point-label");
-            item.Add(label);
-
-            // Nút focus camera vào point
-            var btnFocus = new Button { text = "🔍" };
-            btnFocus.AddToClassList("btn-spline-action");
-            btnFocus.clicked += () =>
+            EditorGUILayout.BeginHorizontal();
+            
+            GUILayout.Label($"P{index}: ({pt.localPosition.x:F2}, {pt.localPosition.y:F2}, {pt.localPosition.z:F2})", EditorStyles.miniLabel, GUILayout.ExpandWidth(true));
+            
+            if (GUILayout.Button("🔍", GUILayout.Width(24), GUILayout.Height(18)))
             {
                 Selection.activeGameObject = pt.gameObject;
                 SceneView.FrameLastActiveSceneView();
-            };
-            item.Add(btnFocus);
+            }
 
-            // Nút xóa point này
-            var btnDel = new Button { text = "❌" };
-            btnDel.AddToClassList("btn-spline-action");
-            btnDel.clicked += () =>
+            if (GUILayout.Button("❌", GUILayout.Width(24), GUILayout.Height(18)))
             {
                 if (spline.Count > 2)
                 {
                     Undo.RegisterCompleteObjectUndo(spline, "Remove Spline Point");
                     Undo.DestroyObjectImmediate(pt.gameObject);
                     
-                    // Delay để Unity xử lý xóa Object rồi làm sạch UI
                     EditorApplication.delayCall += () =>
                     {
                         if (_activeSplineBuilder != null)
                         {
                             _activeSplineBuilder.GenerateMesh();
-                            RefreshSplinePointsList();
                             SaveSplinePointsToLevelData();
                         }
                     };
@@ -702,11 +587,120 @@ public class LevelEditorWindow : EditorWindow
                 {
                     Debug.LogWarning("Không thể xóa: Spline phải chứa ít nhất 2 điểm!");
                 }
-            };
-            item.Add(btnDel);
-
-            pointsList.Add(item);
+            }
+            
+            EditorGUILayout.EndHorizontal();
         }
+        EditorGUILayout.EndScrollView();
+    }
+
+    private void GenerateAndSaveMesh()
+    {
+        if (_activeSplineBuilder == null) return;
+
+        Undo.RecordObject(_activeSplineBuilder, "Generate Spline Mesh");
+        _activeSplineBuilder.GenerateMesh();
+
+        MeshFilter filter = _activeSplineBuilder.GetComponent<MeshFilter>();
+        if (filter != null && filter.sharedMesh != null)
+        {
+            if (_activeLevelData != null)
+            {
+                Undo.RecordObject(_activeLevelData, "Save Spline Mesh to LevelData");
+
+                string folderPath = "Assets/Project/Resources/MeshBezier";
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                    AssetDatabase.Refresh();
+                }
+
+                string targetMeshName = $"Level_{_activeLevelData.levelIndex}_Mesh";
+                string targetPath = $"{folderPath}/{targetMeshName}.asset";
+                Mesh targetMesh = null;
+
+                // 1. Tìm mesh theo LevelData đang trỏ tới (nếu nằm trong MeshBezier)
+                if (_activeLevelData._meshBezierSpline != null)
+                {
+                    string existingPath = AssetDatabase.GetAssetPath(_activeLevelData._meshBezierSpline);
+                    if (!string.IsNullOrEmpty(existingPath) && existingPath.StartsWith(folderPath))
+                    {
+                        targetMesh = _activeLevelData._meshBezierSpline;
+                        targetPath = existingPath;
+                    }
+                }
+
+                // 2. Nếu chưa tìm thấy, thử load từ targetPath (Level_LevelIndex_Mesh.asset)
+                if (targetMesh == null)
+                {
+                    targetMesh = AssetDatabase.LoadAssetAtPath<Mesh>(targetPath);
+                }
+
+                // 3. Nếu vẫn chưa có thì tạo mới, nếu có rồi thì ghi đè dữ liệu
+                if (targetMesh == null)
+                {
+                    targetMesh = new Mesh();
+                    targetMesh.name = targetMeshName;
+                    CopyMeshProperties(filter.sharedMesh, targetMesh);
+                    AssetDatabase.CreateAsset(targetMesh, targetPath);
+                    Debug.Log($"Đã tạo mesh asset mới tại: {targetPath}");
+                }
+                else
+                {
+                    Undo.RecordObject(targetMesh, "Update Spline Mesh");
+                    CopyMeshProperties(filter.sharedMesh, targetMesh);
+                    EditorUtility.SetDirty(targetMesh);
+                    Debug.Log($"Đã cập nhật mesh asset hiện tại tại: {targetPath}");
+                }
+
+                // Gán mesh asset đã lưu/cập nhật vào LevelData và MeshFilter
+                _activeLevelData._meshBezierSpline = targetMesh;
+                filter.sharedMesh = targetMesh;
+
+                // Lưu đồng thời thông số spline points và loop
+                SaveSplinePointsToLevelData();
+
+                EditorUtility.SetDirty(_activeLevelData);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+                Debug.Log($"Đã tạo/ghi đè và gán mesh spline thành công vào {_activeLevelData.name}!");
+            }
+            else
+            {
+                Debug.LogWarning("Không tìm thấy file LevelData để gán mesh!");
+            }
+        }
+    }
+
+    private void RefreshActiveLevelData()
+    {
+        if (levelController == null)
+        {
+            _activeLevelData = null;
+            _serializedLevelData = null;
+            return;
+        }
+
+        string path = $"Assets/Project/Resources/StageLevel/Level_{levelController.CurrentLevel}.asset";
+        LevelData data = AssetDatabase.LoadAssetAtPath<LevelData>(path);
+
+        if (data != _activeLevelData)
+        {
+            _activeLevelData = data;
+            if (_activeLevelData != null)
+            {
+                _serializedLevelData = new SerializedObject(_activeLevelData);
+            }
+            else
+            {
+                _serializedLevelData = null;
+            }
+        }
+    }
+
+    private void AutoFindSplineBuilder()
+    {
+        _activeSplineBuilder = Object.FindFirstObjectByType<SplineMeshBuilder>();
     }
 
     private void SaveSplinePointsToLevelData()
@@ -899,46 +893,19 @@ public class LevelEditorWindow : EditorWindow
         return null;
     }
 
-    // ==========================================
-
-    private void RefreshActiveLevelData()
+    private void CopyMeshProperties(Mesh source, Mesh destination)
     {
-        if (levelController == null)
-        {
-            _activeLevelData = null;
-            _serializedLevelData = null;
-            var scrollRight = _root.Q<ScrollView>(className: "sidebar-right");
-            if (scrollRight != null) scrollRight.Unbind();
-            return;
-        }
+        if (source == null || destination == null) return;
+        if (source == destination) return; // Prevent clearing itself when saving without changes
 
-        string path = $"Assets/Project/Resources/StageLevel/Level_{levelController.CurrentLevel}.asset";
-        LevelData data = AssetDatabase.LoadAssetAtPath<LevelData>(path);
-
-        var lblCurrentLevel = _root.Q<Label>("lbl-current-level");
-        if (lblCurrentLevel != null)
-        {
-            lblCurrentLevel.text = data != null ? $"Active Level: Level_{levelController.CurrentLevel}" : $"Active Level: Level_{levelController.CurrentLevel} (Chưa tạo asset)";
-        }
-
-        if (data != _activeLevelData)
-        {
-            _activeLevelData = data;
-            var scrollRight = _root.Q<ScrollView>(className: "sidebar-right");
-            if (scrollRight != null)
-            {
-                if (_activeLevelData != null)
-                {
-                    _serializedLevelData = new SerializedObject(_activeLevelData);
-                    scrollRight.Bind(_serializedLevelData);
-                }
-                else
-                {
-                    _serializedLevelData = null;
-                    scrollRight.Unbind();
-                }
-            }
-        }
+        destination.Clear();
+        destination.vertices = source.vertices;
+        destination.triangles = source.triangles;
+        destination.uv = source.uv;
+        destination.normals = source.normals;
+        destination.tangents = source.tangents;
+        destination.colors = source.colors;
+        destination.bounds = source.bounds;
     }
 
     private void MarkDirty()

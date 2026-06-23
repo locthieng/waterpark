@@ -46,6 +46,13 @@ public class SplineMeshBuilder : MonoBehaviour
         // Đảm bảo dữ liệu spline (vị trí, tiếp tuyến, pháp tuyến) được cập nhật mới nhất từ Scene View
         spline.Refresh();
 
+#if UNITY_EDITOR
+        if (generatedMesh != null && GetComponent<MeshFilter>().sharedMesh != generatedMesh)
+        {
+            generatedMesh = null;
+        }
+#endif
+
         if (generatedMesh == null)
         {
             generatedMesh = new Mesh();

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Jobs;
@@ -99,7 +99,7 @@ public class StageController : MonoBehaviour
                 GlobalController.CurrentLevelIndex = 1;
             }
         }
-        //mapIndex = LevelController.Instance.LoadLevel(GlobalController.CurrentLevelIndex, LevelLimit);
+        mapIndex = LevelController.Instance.LoadLevel(GlobalController.CurrentLevelIndex, LevelLimit);
         StartCoroutine(CoStartLevel());
     }
 

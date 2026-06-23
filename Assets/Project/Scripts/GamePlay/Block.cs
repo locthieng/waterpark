@@ -23,41 +23,6 @@ public class Block : MonoBehaviour
         ApplyColorFromDatabase();
     }
 
-    public void FlyToTarget(Transform target, Action onComplete)
-    {
-        if (target == null)
-        {
-            onComplete?.Invoke();
-            Destroy(gameObject);
-            return;
-        }
-
-        transform.SetParent(null);
-        Vector3 startPosition = transform.position;
-        Vector3 originalScale = transform.localScale;
-        float duration = 0.25f;
-
-        LeanTween.value(gameObject, 0f, 1f, duration)
-            .setEase(LeanTweenType.easeOutQuad)
-            .setOnUpdate((float t) =>
-            {
-                if (target != null)
-                {
-                    transform.position = Vector3.Lerp(startPosition, target.position, t);
-                    transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
-                }
-            })
-            .setOnComplete(() =>
-            {
-                if (target != null)
-                {
-                    transform.position = target.position;
-                }
-                onComplete?.Invoke();
-                Destroy(gameObject);
-            });
-    }
-
     private void ApplyColorFromDatabase()
     {
         if (_renderer == null) return;

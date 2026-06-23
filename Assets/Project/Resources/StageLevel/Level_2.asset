@@ -14,30 +14,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelIndex: 2
   _gameDifficulty: 1
-  _meshBezierSpline: {fileID: 0}
+  _meshBezierSpline: {fileID: 4300000, guid: 35b589f47007e1645a055f8d20ddab6c, type: 2}
   _isBezierLoop: 0
   _bezierPoints:
   - localPosition: {x: 0, y: 0, z: -2.1864436}
     precedingControlPointLocalPosition: {x: 0.042597115, y: 0.0034210682, z: -0.8230548}
-    followingControlPointLocalPosition: {x: -0.042597115, y: -0.003420949, z: 0.82305384}
+    followingControlPointLocalPosition: {x: -0.042597115, y: -0.0034210682, z: 0.8230548}
     handleMode: 2
   - localPosition: {x: 0, y: 0.00000008940697, z: 0.22474205}
     precedingControlPointLocalPosition: {x: -0.08519441, y: -0.0068419278, z: -0.76507753}
-    followingControlPointLocalPosition: {x: 0.08519441, y: 0.0068419278, z: 0.7650777}
+    followingControlPointLocalPosition: {x: 0.08519441, y: 0.0068419278, z: 0.76507753}
     handleMode: 2
   - localPosition: {x: 0.72804445, y: 0, z: 2.359695}
     precedingControlPointLocalPosition: {x: -0.42986387, y: 0.023947, z: -0.6627743}
-    followingControlPointLocalPosition: {x: 0.42986387, y: -0.023947239, z: 0.6627755}
+    followingControlPointLocalPosition: {x: 0.42986387, y: -0.023947, z: 0.6627743}
     handleMode: 2
   - localPosition: {x: 2.5308728, y: 0, z: 3.868804}
     precedingControlPointLocalPosition: {x: -0.7262225, y: -0.08894658, z: -0.22788525}
-    followingControlPointLocalPosition: {x: 0.7262225, y: 0.08894682, z: 0.22788715}
+    followingControlPointLocalPosition: {x: 0.7262225, y: 0.08894658, z: 0.22788525}
     handleMode: 2
   - localPosition: {x: 4.8126, y: 0.35749674, z: 3.8689432}
     precedingControlPointLocalPosition: {x: -0.7498021, y: -0.025657654, z: 0.06507158}
-    followingControlPointLocalPosition: {x: 0.7498021, y: 0.025657654, z: -0.065069675}
+    followingControlPointLocalPosition: {x: 0.7498021, y: 0.025657654, z: -0.06507158}
     handleMode: 2
   - localPosition: {x: 6.9502077, y: 0, z: 3.8689442}
     precedingControlPointLocalPosition: {x: -0.69390297, y: 0.1915772, z: -0.032534838}
-    followingControlPointLocalPosition: {x: 0.69390297, y: -0.1915772, z: 0.032536745}
+    followingControlPointLocalPosition: {x: 0.69390297, y: -0.1915772, z: 0.032534838}
     handleMode: 2

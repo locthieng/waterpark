@@ -11,10 +11,11 @@ public class InGameController : Singleton<InGameController>
 
     public HoleController HoleController;
 
+    public PathMoveController PathMoveController;
+
     public Block _blockPrefab;
 
     public GameDataBase _GameDataBase;
-
 
     private void Start()
     {
